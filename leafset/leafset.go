@@ -7,14 +7,15 @@ import (
 
 // LeafSet contains the sets of numerically closer and farther from the node.
 type LeafSet struct {
-	key []byte // @todo better type
+	key peer.ID
 	smaller, larger Set
 }
 
 // Closest returns the closest PeerInfo.
 func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
 	byteid, _ := id.MarshalBinary()
-	if bytes.Compare(byteid, l.key) < 0 {
+	k, _ := l.key.MarshalBinary()
+	if bytes.Compare(byteid, k) < 0 {
 		return l.smaller.Closest(id)
 	}
 
@@ -24,7 +25,8 @@ func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
 // Insert inserts a peer in the LeafSet.
 func (l LeafSet) Insert(peer *peer.AddrInfo) {
 	byteid, _ := peer.ID.MarshalBinary()
-	if bytes.Compare(byteid, l.key) < 0 {
+	k, _ := l.key.MarshalBinary()
+	if bytes.Compare(byteid, k) < 0 {
 		l.smaller = l.smaller.Insert(peer)
 		return
 	}
@@ -35,7 +37,8 @@ func (l LeafSet) Insert(peer *peer.AddrInfo) {
 // Remove removes a peer from the LeafSet.
 func (l LeafSet) Remove(id peer.ID) bool {
 	byteid, _ := id.MarshalBinary()
-	if bytes.Compare(byteid, l.key) < 0 {
+	k, _ := l.key.MarshalBinary()
+	if bytes.Compare(byteid, k) < 0 {
 		smaller, ok := l.smaller.Remove(id)
 		l.smaller = smaller
 		return ok
