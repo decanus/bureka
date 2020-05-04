@@ -28,21 +28,15 @@ func (s Set) Closest(id peer.ID) *peer.AddrInfo{
 
 // Insert adds a peer to the Set.
 func (s Set) Insert(peer *peer.AddrInfo) Set {
-	// @todo not sure yet whether this makes sense
 	i := s.search(peer.ID)
-	if i >= SetLength {
-		return s
+
+	if i < len(s) && s[i].ID == peer.ID || i >= SetLength {
+			return s
 	}
 
-	if i >= len(s) {
-		s = append(s, nil)
-		copy(s[i+1:], s[i:])
-		s[i] = peer
-
-		if len(s) > SetLength {
-			return s[:len(s)-1]
-		}
-	}
+	s = append(s, nil)
+	copy(s[i+1:], s[i:])
+	s[i] = peer
 
 	return s
 }
