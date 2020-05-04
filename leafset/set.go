@@ -16,12 +16,7 @@ func (s Set) Closest(id peer.ID) *k.PeerInfo {
 		return nil
 	}
 
-	byteid, _ := id.MarshalBinary()
-
-	i := sort.Search(len(s), func(i int) bool {
-		cmp, _ := (s)[i].Id.MarshalBinary()
-		return bytes.Compare(byteid, cmp) >= 0
-	})
+	i := s.search(id)
 
 	if i >= len(s) {
 		i = len(s) - 1
@@ -32,14 +27,20 @@ func (s Set) Closest(id peer.ID) *k.PeerInfo {
 
 // Upsert either adds a peer to the Set or updates the peer if it already exists.
 func (s Set) Upsert(peer *k.PeerInfo) Set {
-	i := s.IndexOf(peer.Id)
-	if i > -1 {
+	i := s.search(peer.Id)
+	if s[i].Id == peer.Id {
 		s[i].LastSuccessfulOutboundQueryAt = peer.LastSuccessfulOutboundQueryAt
 		s[i].LastUsefulAt = peer.LastUsefulAt
 		return s
 	}
 
-	// @todo insertation
+	if i >= len(s) {
+		s = append(s, nil)
+		copy(s[i+1:], s[i:])
+		s[i] = peer
+
+		// @todo check its not too long
+	}
 
 	return s
 }
@@ -65,4 +66,13 @@ func (s Set) IndexOf(id peer.ID) int {
 	}
 
 	return -1
+}
+
+func (s Set) search(id peer.ID) int {
+	byteid, _ := id.MarshalBinary()
+
+	return sort.Search(len(s), func(i int) bool {
+		cmp, _ := (s)[i].Id.MarshalBinary()
+		return bytes.Compare(byteid, cmp) >= 0
+	})
 }
