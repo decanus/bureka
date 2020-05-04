@@ -1,4 +1,4 @@
-package pastry
+package leafset
 
 import (
 	"bytes"
@@ -9,11 +9,6 @@ import (
 
 // Set represents a Set of nodes
 type Set []*k.PeerInfo
-
-// LeafSet contains the sets of numerically closer and farther from the node.
-type LeafSet struct {
-	smaller, larger Set
-}
 
 // Closest returns the closest peer to a specific ID.
 func (s Set) Closest(id peer.ID) *k.PeerInfo {
