@@ -39,10 +39,13 @@ func (s Set) Closest(id peer.ID) *k.PeerInfo {
 func (s Set) Upsert(peer *k.PeerInfo) Set {
 	i := s.IndexOf(peer.Id)
 	if i > -1 {
+		s[i].LastSuccessfulOutboundQueryAt = peer.LastSuccessfulOutboundQueryAt
+		s[i].LastUsefulAt = peer.LastUsefulAt
 		return s
 	}
 
 	// @todo insertation
+
 	return s
 }
 
