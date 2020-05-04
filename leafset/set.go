@@ -3,17 +3,16 @@ package leafset
 import (
 	"bytes"
 	"github.com/libp2p/go-libp2p-core/peer"
-	k "github.com/libp2p/go-libp2p-kbucket"
 	"sort"
 )
 
 var SetLength int = 10
 
 // Set represents a Set of nodes
-type Set []*k.PeerInfo
+type Set []*peer.AddrInfo
 
 // Closest returns the closest peer to a specific ID.
-func (s Set) Closest(id peer.ID) *k.PeerInfo {
+func (s Set) Closest(id peer.ID) *peer.AddrInfo{
 	if len(s) == 0 {
 		return nil
 	}
@@ -28,11 +27,9 @@ func (s Set) Closest(id peer.ID) *k.PeerInfo {
 }
 
 // Upsert either adds a peer to the Set or updates the peer if it already exists.
-func (s Set) Upsert(peer *k.PeerInfo) Set {
-	i := s.search(peer.Id)
-	if s[i].Id == peer.Id {
-		s[i].LastSuccessfulOutboundQueryAt = peer.LastSuccessfulOutboundQueryAt
-		s[i].LastUsefulAt = peer.LastUsefulAt
+func (s Set) Upsert(peer *peer.AddrInfo) Set {
+	i := s.search(peer.ID)
+	if i >= SetLength {
 		return s
 	}
 
@@ -64,7 +61,7 @@ func (s Set) Remove(id peer.ID) (Set, bool) {
 // IndexOf returns the index of the given peer id.
 func (s Set) IndexOf(id peer.ID) int {
 	for i, p := range s {
-		if p.Id == id {
+		if p.ID == id {
 			return i
 		}
 	}
@@ -76,7 +73,7 @@ func (s Set) search(id peer.ID) int {
 	byteid, _ := id.MarshalBinary()
 
 	return sort.Search(len(s), func(i int) bool {
-		cmp, _ := (s)[i].Id.MarshalBinary()
+		cmp, _ := (s)[i].ID.MarshalBinary()
 		return bytes.Compare(byteid, cmp) >= 0
 	})
 }

@@ -3,7 +3,6 @@ package leafset
 import (
 	"bytes"
 	"github.com/libp2p/go-libp2p-core/peer"
-	k "github.com/libp2p/go-libp2p-kbucket"
 )
 
 // LeafSet contains the sets of numerically closer and farther from the node.
@@ -13,7 +12,7 @@ type LeafSet struct {
 }
 
 // Closest returns the closest PeerInfo.
-func (l LeafSet) Closest(id peer.ID) *k.PeerInfo {
+func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
 	byteid, _ := id.MarshalBinary()
 	if bytes.Compare(byteid, l.key) < 0 {
 		return l.smaller.Closest(id)
@@ -23,8 +22,8 @@ func (l LeafSet) Closest(id peer.ID) *k.PeerInfo {
 }
 
 // Upsert either Insert or Updates a peer in the LeafSet.
-func (l LeafSet) Upsert(peer *k.PeerInfo) {
-	byteid, _ := peer.Id.MarshalBinary()
+func (l LeafSet) Upsert(peer *peer.AddrInfo) {
+	byteid, _ := peer.ID.MarshalBinary()
 	if bytes.Compare(byteid, l.key) < 0 {
 		l.smaller = l.smaller.Upsert(peer)
 		return
