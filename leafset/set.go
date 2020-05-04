@@ -34,11 +34,11 @@ func (s Set) Insert(peer *peer.AddrInfo) Set {
 			return s
 	}
 
-	s = append(s, nil)
-	copy(s[i+1:], s[i:])
-	s[i] = peer
+	ns := append(s, nil)
+	copy(ns[i+1:], ns[i:])
+	ns[i] = peer
 
-	return s
+	return ns
 }
 
 // Remove removes a peer with a given id.
