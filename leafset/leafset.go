@@ -21,15 +21,15 @@ func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
 	return l.larger.Closest(id)
 }
 
-// Upsert either Insert or Updates a peer in the LeafSet.
-func (l LeafSet) Upsert(peer *peer.AddrInfo) {
+// Insert inserts a peer in the LeafSet.
+func (l LeafSet) Insert(peer *peer.AddrInfo) {
 	byteid, _ := peer.ID.MarshalBinary()
 	if bytes.Compare(byteid, l.key) < 0 {
-		l.smaller = l.smaller.Upsert(peer)
+		l.smaller = l.smaller.Insert(peer)
 		return
 	}
 
-	l.larger = l.larger.Upsert(peer)
+	l.larger = l.larger.Insert(peer)
 }
 
 // Remove removes a peer from the LeafSet.

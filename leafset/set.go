@@ -26,8 +26,9 @@ func (s Set) Closest(id peer.ID) *peer.AddrInfo{
 	return (s)[i]
 }
 
-// Upsert either adds a peer to the Set or updates the peer if it already exists.
-func (s Set) Upsert(peer *peer.AddrInfo) Set {
+// Insert adds a peer to the Set.
+func (s Set) Insert(peer *peer.AddrInfo) Set {
+	// @todo not sure yet whether this makes sense
 	i := s.search(peer.ID)
 	if i >= SetLength {
 		return s
