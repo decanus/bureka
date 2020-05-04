@@ -42,7 +42,7 @@ func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error
 
 func (p *Pastry) FindLocal(id peer.ID) *peer.AddrInfo {
 	closest := p.LeafSet.Closest(id)
-	if closest.Id == id {
+	if closest.ID == id {
 		return closest
 	}
 
