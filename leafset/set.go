@@ -12,7 +12,7 @@ var SetLength int = 10
 type Set []*peer.AddrInfo
 
 // Closest returns the closest peer to a specific ID.
-func (s Set) Closest(id peer.ID) *peer.AddrInfo{
+func (s Set) Closest(id peer.ID) *peer.AddrInfo {
 	if len(s) == 0 {
 		return nil
 	}
@@ -31,7 +31,7 @@ func (s Set) Insert(peer *peer.AddrInfo) Set {
 	i := s.search(peer.ID)
 
 	if i < len(s) && s[i].ID == peer.ID || i >= SetLength {
-			return s
+		return s
 	}
 
 	ns := append(s, nil)
