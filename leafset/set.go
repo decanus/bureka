@@ -7,6 +7,8 @@ import (
 	"sort"
 )
 
+var SetLength int = 10
+
 // Set represents a Set of nodes
 type Set []*k.PeerInfo
 
@@ -39,7 +41,9 @@ func (s Set) Upsert(peer *k.PeerInfo) Set {
 		copy(s[i+1:], s[i:])
 		s[i] = peer
 
-		// @todo check its not too long
+		if len(s) > SetLength {
+			return s[:len(s)-1]
+		}
 	}
 
 	return s
