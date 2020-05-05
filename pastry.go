@@ -11,17 +11,12 @@ var logger = logging.Logger("dht")
 
 type Pastry struct {
 	LeafSet leafset.LeafSet
+
+	deliverHandler DeliverHandler
+	forwardHandler ForwardHandler
 }
 
 func (p *Pastry) Route() {
-
-}
-
-func (p *Pastry) Deliver() {
-
-}
-
-func (p *Pastry) Forward() {
 
 }
 
