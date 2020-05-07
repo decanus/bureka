@@ -2,6 +2,7 @@ package set
 
 import (
 	"bytes"
+
 	"github.com/libp2p/go-libp2p-core/peer"
 )
 

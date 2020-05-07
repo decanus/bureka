@@ -2,8 +2,9 @@ package set
 
 import (
 	"bytes"
-	"github.com/libp2p/go-libp2p-core/peer"
 	"sort"
+
+	"github.com/libp2p/go-libp2p-core/peer"
 )
 
 var SetLength int = 10

@@ -3,6 +3,7 @@ package pastry
 import (
 	"bytes"
 	"context"
+
 	"github.com/decanus/pastry/set"
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/peer"
