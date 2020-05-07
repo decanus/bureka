@@ -1,4 +1,4 @@
-package leafset
+package set
 
 import (
 	"bytes"

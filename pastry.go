@@ -2,7 +2,7 @@ package pastry
 
 import (
 	"context"
-	"github.com/decanus/pastry/leafset"
+	"github.com/decanus/pastry/set"
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/peer"
 )
@@ -10,13 +10,14 @@ import (
 var logger = logging.Logger("dht")
 
 type Pastry struct {
-	LeafSet leafset.LeafSet
+	LeafSet          set.LeafSet
+	NeighbourhoodSet set.Set
 
 	deliverHandler DeliverHandler
 	forwardHandler ForwardHandler
 }
 
-func (p *Pastry) Route() {
+func (p *Pastry) Route(ctx context.Context) {
 
 }
 
