@@ -48,3 +48,15 @@ func (l LeafSet) Remove(id peer.ID) bool {
 	l.larger = larger
 	return ok
 }
+
+// @TODO not sure if this works lol, cause of left and right ordering.
+
+// Min returns the farthest key to the smaller side.
+func (l LeafSet) Min() peer.ID {
+	return l.smaller[0].ID
+}
+
+// Max returns the farthest key to the larger side.
+func (l LeafSet) Max() peer.ID {
+	return l.larger[0].ID
+}

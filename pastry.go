@@ -1,6 +1,7 @@
 package pastry
 
 import (
+	"bytes"
 	"context"
 	"github.com/decanus/pastry/set"
 	logging "github.com/ipfs/go-log"
@@ -17,8 +18,13 @@ type Pastry struct {
 	forwardHandler ForwardHandler
 }
 
-func (p *Pastry) Route(ctx context.Context) {
-
+func (p *Pastry) Route(ctx context.Context, to peer.ID) {
+	if isInRange(to, p.LeafSet.Min(), p.LeafSet.Max()) {
+		closest := p.LeafSet.Closest(to)
+		// @todo route to closest
+	} else {
+		// @todo use routing table
+	}
 }
 
 func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
@@ -43,4 +49,19 @@ func (p *Pastry) FindLocal(id peer.ID) *peer.AddrInfo {
 	}
 
 	return nil
+}
+
+func isInRange(id, min, max peer.ID) bool {
+	byteid, _ := id.MarshalBinary()
+	bytemin, _ := min.MarshalBinary()
+	if bytes.Compare(byteid, bytemin) >= 0 {
+		return false
+	}
+
+	bytemax, _ := max.MarshalBinary()
+	if bytes.Compare(byteid, bytemax) < 1 {
+		return false
+	}
+
+	return true
 }
