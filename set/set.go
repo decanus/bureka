@@ -7,7 +7,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 )
 
-var SetLength int = 10
+var Length int = 10
 
 // Set represents a Set of nodes
 type Set []*peer.AddrInfo
@@ -31,7 +31,7 @@ func (s Set) Closest(id peer.ID) *peer.AddrInfo {
 func (s Set) Insert(peer *peer.AddrInfo) Set {
 	i := s.search(peer.ID)
 
-	if i < len(s) && s[i].ID == peer.ID || i >= SetLength {
+	if i < len(s) && s[i].ID == peer.ID || i >= Length {
 		return s
 	}
 
