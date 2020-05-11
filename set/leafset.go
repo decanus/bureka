@@ -58,6 +58,7 @@ func (l LeafSet) Min() peer.ID {
 }
 
 // Max returns the farthest key to the larger side.
+// @todo this may need to be l.larger[len(l.larger)-1].ID
 func (l LeafSet) Max() peer.ID {
 	return l.larger[0].ID
 }

@@ -21,12 +21,7 @@ type Pastry struct {
 }
 
 func (p *Pastry) Route(ctx context.Context, to peer.ID) {
-	if isInRange(to, p.LeafSet.Min(), p.LeafSet.Max()) {
-		closest := p.LeafSet.Closest(to)
-		// @todo route to closest
-	} else {
-		// @todo use routing table
-	}
+	_ = p.route(to)
 }
 
 func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
@@ -56,7 +51,7 @@ func (p *Pastry) FindLocal(id peer.ID) *peer.AddrInfo {
 	return nil
 }
 
-func (p *Pastry) route(ctx context.Context, to peer.ID) peer.AddrInfo {
+func (p *Pastry) route(to peer.ID) peer.AddrInfo {
 	if isInRange(to, p.LeafSet.Min(), p.LeafSet.Max()) {
 		addr := p.LeafSet.Closest(to)
 		if addr != nil {
