@@ -14,7 +14,7 @@ import (
 func TestSet_Insert(t *testing.T) {
 	s := make(set.Set, 0)
 
-	addr := addr()
+	addr := Addr()
 
 	s = s.Insert(&addr)
 
@@ -26,7 +26,7 @@ func TestSet_Insert(t *testing.T) {
 func TestSet_Remove(t *testing.T) {
 	s := make(set.Set, 0)
 
-	addr := addr()
+	addr := Addr()
 
 	s = s.Insert(&addr)
 	if s.IndexOf(addr.ID) != 0 {
@@ -46,7 +46,7 @@ func TestSet_Remove(t *testing.T) {
 func TestSet_Closest(t *testing.T) {
 	s := make(set.Set, 0)
 
-	first := addr()
+	first := Addr()
 
 	bytes, _ := first.ID.MarshalBinary()
 	bytes[2] += 1
@@ -64,7 +64,13 @@ func TestSet_Closest(t *testing.T) {
 	}
 }
 
-func addr() peer.AddrInfo {
+func Addr() peer.AddrInfo {
+	return peer.AddrInfo{
+		ID: ID(),
+	}
+}
+
+func ID() peer.ID {
 	pk, _, err := crypto.GenerateECDSAKeyPairWithCurve(elliptic.P256(), rand.Reader)
 	if err != nil {
 		panic(err)
@@ -75,7 +81,5 @@ func addr() peer.AddrInfo {
 		panic(err)
 	}
 
-	return peer.AddrInfo{
-		ID: id,
-	}
+	return id
 }
