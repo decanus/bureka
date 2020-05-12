@@ -47,32 +47,18 @@ func TestLeafSet_Closest(t *testing.T) {
 
 	ls := set.NewLeafSet(id)
 
-	b, _ := id.MarshalBinary()
-
-	ub := make([]byte, len(b))
-	copy(ub, b)
-	ub[2] += 1
-
-	lb := make([]byte, len(b))
-	copy(lb, b)
-	lb[2] -= 1
-
-	upper, _ := peer.IDFromBytes(ub)
-	lower, _ := peer.IDFromBytes(lb)
+	upper := UpperID(id)
+	lower := LowerID(id)
 
 	ls.Insert(&peer.AddrInfo{ID: upper})
 	ls.Insert(&peer.AddrInfo{ID: lower})
 
-	ub[2] += 1
-	su, _ := peer.IDFromBytes(ub)
-
+	su := UpperID(upper)
 	if ls.Closest(su).ID != upper {
 		t.Error("failed to find upper")
 	}
 
-	lb[2] -= 1
-	sl, _ := peer.IDFromBytes(lb)
-
+	sl := LowerID(lower)
 	if ls.Closest(sl).ID != lower {
 		t.Error("failed to find lower")
 	}

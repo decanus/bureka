@@ -48,13 +48,9 @@ func TestSet_Closest(t *testing.T) {
 
 	first := Addr()
 
-	bytes, _ := first.ID.MarshalBinary()
-	bytes[2] += 1
+	search := UpperID(first.ID)
 
-	search, _ := peer.IDFromBytes(bytes)
-
-	bytes[2] += 1
-	second, _ := peer.IDFromBytes(bytes)
+	second := UpperID(search)
 
 	s = s.Insert(&first)
 	s = s.Insert(&peer.AddrInfo{ID: second})
@@ -62,6 +58,72 @@ func TestSet_Closest(t *testing.T) {
 	if first.ID != s.Closest(search).ID {
 		t.Error("unexpected closest value")
 	}
+}
+
+func TestSet_Insert_IsProperlySorted(t *testing.T) {
+	s := make(set.Set, 0)
+
+	first := ID()
+	second := UpperID(first)
+	last := UpperID(second)
+
+	s = s.Insert(&peer.AddrInfo{ID: first})
+	s = s.Insert(&peer.AddrInfo{ID: second})
+	s = s.Insert(&peer.AddrInfo{ID: last})
+
+	if s.IndexOf(first) != 2 {
+		t.Fatal("incorrect sorting")
+	}
+
+	if s.IndexOf(second) != 1 {
+		t.Fatal("incorrect sorting")
+	}
+
+	if s.IndexOf(last) != 0 {
+		t.Fatal("incorrect sorting")
+	}
+}
+
+func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
+	s := make(set.Set, 0)
+
+	first := ID()
+	second := LowerID(first)
+	last := LowerID(second)
+
+	s = s.Insert(&peer.AddrInfo{ID: first})
+	s = s.Insert(&peer.AddrInfo{ID: second})
+	s = s.Insert(&peer.AddrInfo{ID: last})
+
+	if s.IndexOf(first) != 0 {
+		t.Fatal("incorrect sorting")
+	}
+
+	if s.IndexOf(second) != 1 {
+		t.Fatal("incorrect sorting")
+	}
+
+	if s.IndexOf(last) != 2 {
+		t.Fatal("incorrect sorting")
+	}
+}
+
+func UpperID(id peer.ID) peer.ID {
+	b, _ := id.MarshalBinary()
+	b[2] += 1
+
+	p, _ := peer.IDFromBytes(b)
+
+	return p
+}
+
+func LowerID(id peer.ID) peer.ID {
+	b, _ := id.MarshalBinary()
+	b[2] -= 1
+
+	p, _ := peer.IDFromBytes(b)
+
+	return p
 }
 
 func Addr() peer.AddrInfo {
