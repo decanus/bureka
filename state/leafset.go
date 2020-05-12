@@ -12,6 +12,14 @@ type LeafSet struct {
 	smaller, larger Set
 }
 
+func NewLeafSet(key peer.ID) LeafSet {
+	return LeafSet{
+		key: key,
+		smaller: make(Set, 0),
+		larger: make(Set, 0),
+	}
+}
+
 // Closest returns the closest PeerInfo.
 func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
 	byteid, _ := id.MarshalBinary()
@@ -24,7 +32,7 @@ func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
 }
 
 // Insert inserts a peer in the LeafSet.
-func (l LeafSet) Insert(peer *peer.AddrInfo) {
+func (l *LeafSet) Insert(peer *peer.AddrInfo) {
 	byteid, _ := peer.ID.MarshalBinary()
 	k, _ := l.key.MarshalBinary()
 	if bytes.Compare(byteid, k) < 0 {
@@ -36,7 +44,7 @@ func (l LeafSet) Insert(peer *peer.AddrInfo) {
 }
 
 // Remove removes a peer from the LeafSet.
-func (l LeafSet) Remove(id peer.ID) bool {
+func (l *LeafSet) Remove(id peer.ID) bool {
 	byteid, _ := id.MarshalBinary()
 	k, _ := l.key.MarshalBinary()
 	if bytes.Compare(byteid, k) < 0 {
