@@ -17,9 +17,9 @@ import (
 var logger = logging.Logger("dht")
 
 type Pastry struct {
-	LeafSet          state.LeafSet
-	NeighbourhoodSet state.Set
-	RoutingTable     state.RoutingTable
+	LeafSet         state.LeafSet
+	NeighborhoodSet state.Set
+	RoutingTable    state.RoutingTable
 
 	host host.Host
 
@@ -29,8 +29,8 @@ type Pastry struct {
 
 func New(ctx context.Context, host host.Host) *Pastry {
 	return &Pastry{
-		LeafSet:          state.NewLeafSet(host.ID()),
-		NeighbourhoodSet: make(state.Set, 0),
+		LeafSet:         state.NewLeafSet(host.ID()),
+		NeighborhoodSet: make(state.Set, 0),
 	}
 }
 
