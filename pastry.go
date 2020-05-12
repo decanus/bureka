@@ -51,6 +51,7 @@ func (p *Pastry) route(to peer.ID) peer.AddrInfo {
 		}
 	}
 
+	// @todo this is flimsy but will fix later
 	addr := p.RoutingTable.Route(p.host.ID(), to)
 	if addr != nil {
 		return *addr
