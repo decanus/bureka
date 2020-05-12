@@ -1,3 +1,7 @@
+// Package pastry implements a pastry node.
+//
+// The implementation is inspired by [go-libp2p-kad-dht](https://github.com/libp2p/go-libp2p-kad-dht),
+// as well as various Pastry implementations including [wendy](https://github.com/secondbit/wendy).
 package pastry
 
 import (
@@ -7,14 +11,14 @@ import (
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/peer"
 
-	"github.com/decanus/pastry/set"
+	"github.com/decanus/pastry/state"
 )
 
 var logger = logging.Logger("dht")
 
 type Pastry struct {
-	LeafSet          set.LeafSet
-	NeighbourhoodSet set.Set
+	LeafSet          state.LeafSet
+	NeighbourhoodSet state.Set
 
 	deliverHandler DeliverHandler
 	forwardHandler ForwardHandler
