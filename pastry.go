@@ -27,6 +27,13 @@ type Pastry struct {
 	forwardHandler ForwardHandler
 }
 
+func New(ctx context.Context, host host.Host) *Pastry {
+	return &Pastry{
+		LeafSet:          state.NewLeafSet(host.ID()),
+		NeighbourhoodSet: make(state.Set, 0),
+	}
+}
+
 func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
 	if err := id.Validate(); err != nil {
 		return peer.AddrInfo{}, err
