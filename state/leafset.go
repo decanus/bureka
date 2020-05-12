@@ -14,9 +14,9 @@ type LeafSet struct {
 
 func NewLeafSet(key peer.ID) LeafSet {
 	return LeafSet{
-		key: key,
+		key:     key,
 		smaller: make(Set, 0),
-		larger: make(Set, 0),
+		larger:  make(Set, 0),
 	}
 }
 
@@ -60,7 +60,7 @@ func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
 
 // Min returns the farthest key to the smaller side.
 func (l LeafSet) Min() peer.ID {
-	return l.smaller[len(l.smaller) - 1].ID
+	return l.smaller[len(l.smaller)-1].ID
 }
 
 // Max returns the farthest key to the larger side.
