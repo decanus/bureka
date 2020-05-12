@@ -1,17 +1,17 @@
-package set_test
+package state_test
 
 import (
 	"testing"
 
 	"github.com/libp2p/go-libp2p-core/peer"
 
-	"github.com/decanus/pastry/set"
+	"github.com/decanus/pastry/state"
 )
 
 func TestLeafSet_Insert(t *testing.T) {
 	id := ID()
 
-	ls := set.NewLeafSet(id)
+	ls := state.NewLeafSet(id)
 
 	addr := Addr()
 
@@ -25,7 +25,7 @@ func TestLeafSet_Insert(t *testing.T) {
 func TestLeafSet_Remove(t *testing.T) {
 	id := ID()
 
-	ls := set.NewLeafSet(id)
+	ls := state.NewLeafSet(id)
 
 	addr := Addr()
 
@@ -45,7 +45,7 @@ func TestLeafSet_Remove(t *testing.T) {
 func TestLeafSet_Closest(t *testing.T) {
 	id := ID()
 
-	ls := set.NewLeafSet(id)
+	ls := state.NewLeafSet(id)
 
 	upper := UpperID(id)
 	lower := LowerID(id)
