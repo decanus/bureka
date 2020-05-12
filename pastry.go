@@ -2,10 +2,12 @@ package pastry
 
 import (
 	"context"
-	"github.com/decanus/pastry/set"
+
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
+
+	"github.com/decanus/pastry/set"
 )
 
 var logger = logging.Logger("dht")
@@ -14,13 +16,15 @@ type Pastry struct {
 	LeafSet          set.LeafSet
 	NeighbourhoodSet set.Set
 
+	host host.Host
+
 	deliverHandler DeliverHandler
 	forwardHandler ForwardHandler
 }
 
 func New(ctx context.Context, host host.Host) *Pastry {
 	return &Pastry{
-		LeafSet: set.NewLeafSet(host.ID()),
+		LeafSet:          set.NewLeafSet(host.ID()),
 		NeighbourhoodSet: make(set.Set, 0),
 	}
 }
