@@ -10,6 +10,7 @@ import (
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/routing"
 
 	"github.com/decanus/pastry/state"
 )
@@ -26,6 +27,9 @@ type Pastry struct {
 	deliverHandler DeliverHandler
 	forwardHandler ForwardHandler
 }
+
+// Guarantee that we implement interfaces.
+var _ routing.PeerRouting = (*Pastry)(nil)
 
 func New(ctx context.Context, host host.Host) *Pastry {
 	return &Pastry{
