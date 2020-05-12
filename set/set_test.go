@@ -110,7 +110,16 @@ func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
 
 func UpperID(id peer.ID) peer.ID {
 	b, _ := id.MarshalBinary()
-	b[2] += 1
+
+	i := 2
+
+	for ; i <= len(b); i++ {
+		if b[i] < 255 {
+			break
+		}
+	}
+
+	b[i] += 1
 
 	p, _ := peer.IDFromBytes(b)
 
@@ -119,7 +128,15 @@ func UpperID(id peer.ID) peer.ID {
 
 func LowerID(id peer.ID) peer.ID {
 	b, _ := id.MarshalBinary()
-	b[2] -= 1
+	i := 2
+
+	for ; i <= len(b); i++ {
+		if b[i] > 0 {
+			break
+		}
+	}
+
+	b[i] -= 1
 
 	p, _ := peer.IDFromBytes(b)
 
