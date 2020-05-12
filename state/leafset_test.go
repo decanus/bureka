@@ -93,3 +93,15 @@ func TestLeafSet_Min(t *testing.T) {
 		t.Error("unexpected min")
 	}
 }
+
+func TestLeafSet_IsInRange(t *testing.T) {
+	id := ID()
+
+	ls := state.NewLeafSet(id)
+	ls.Insert(&peer.AddrInfo{ID: UpperID(id)})
+	ls.Insert(&peer.AddrInfo{ID: LowerID(id)})
+
+	if !ls.IsInRange(id) {
+		t.Error("id not in rage as expected")
+	}
+}

@@ -67,3 +67,13 @@ func (l LeafSet) Min() peer.ID {
 func (l LeafSet) Max() peer.ID {
 	return l.larger[0].ID
 }
+
+// IsInRange returns whether an id is between
+// the Min and Max IDs in the LeafSet.
+func (l LeafSet) IsInRange(id peer.ID) bool {
+	byteid, _ := id.MarshalBinary()
+	bytemin, _ := l.Min().MarshalBinary()
+	bytemax, _ := l.Max().MarshalBinary()
+
+	return bytes.Compare(byteid, bytemin) >= 0 && bytes.Compare(byteid, bytemax) <= 0
+}

@@ -5,7 +5,6 @@
 package pastry
 
 import (
-	"bytes"
 	"context"
 
 	logging "github.com/ipfs/go-log"
@@ -43,8 +42,9 @@ func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error
 	return peer.AddrInfo{}, nil
 }
 
+// @todo probably want to return error if not found
 func (p *Pastry) route(to peer.ID) peer.AddrInfo {
-	if isInRange(to, p.LeafSet.Min(), p.LeafSet.Max()) {
+	if p.LeafSet.IsInRange(to) {
 		addr := p.LeafSet.Closest(to)
 		if addr != nil {
 			return *addr
@@ -57,19 +57,4 @@ func (p *Pastry) route(to peer.ID) peer.AddrInfo {
 	}
 
 	return peer.AddrInfo{}
-}
-
-func isInRange(id, min, max peer.ID) bool {
-	byteid, _ := id.MarshalBinary()
-	bytemin, _ := min.MarshalBinary()
-	if bytes.Compare(byteid, bytemin) >= 0 {
-		return false
-	}
-
-	bytemax, _ := max.MarshalBinary()
-	if bytes.Compare(byteid, bytemax) < 1 {
-		return false
-	}
-
-	return true
 }
