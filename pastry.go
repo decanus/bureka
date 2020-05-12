@@ -9,6 +9,7 @@ import (
 	"context"
 
 	logging "github.com/ipfs/go-log"
+	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 
 	"github.com/decanus/pastry/state"
@@ -19,13 +20,12 @@ var logger = logging.Logger("dht")
 type Pastry struct {
 	LeafSet          state.LeafSet
 	NeighbourhoodSet state.Set
+	RoutingTable     state.RoutingTable
+
+	host host.Host
 
 	deliverHandler DeliverHandler
 	forwardHandler ForwardHandler
-}
-
-func (p *Pastry) Route(ctx context.Context, to peer.ID) {
-	_ = p.route(to)
 }
 
 func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
@@ -35,24 +35,12 @@ func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error
 
 	logger.Debug("finding peer", "peer", id)
 
-	local := p.FindLocal(id)
-	if local != nil {
-		return *local, nil
+	local := p.route(id)
+	if local.ID != "" {
+		return local, nil
 	}
-
-	// @todo should probably call route here.
 
 	return peer.AddrInfo{}, nil
-}
-
-func (p *Pastry) FindLocal(id peer.ID) *peer.AddrInfo {
-	// @todo should probably call route here.
-	closest := p.LeafSet.Closest(id)
-	if closest.ID == id {
-		return closest
-	}
-
-	return nil
 }
 
 func (p *Pastry) route(to peer.ID) peer.AddrInfo {
@@ -61,11 +49,13 @@ func (p *Pastry) route(to peer.ID) peer.AddrInfo {
 		if addr != nil {
 			return *addr
 		}
-	} else {
-		// @todo use routing table
 	}
 
-	// @todo
+	addr := p.RoutingTable.Route(p.host.ID(), to)
+	if addr != nil {
+		return *addr
+	}
+
 	return peer.AddrInfo{}
 }
 
