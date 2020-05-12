@@ -63,3 +63,33 @@ func TestLeafSet_Closest(t *testing.T) {
 		t.Error("failed to find lower")
 	}
 }
+
+func TestLeafSet_Max(t *testing.T) {
+	id := ID()
+	u := UpperID(id)
+	max := UpperID(u)
+
+	ls := state.NewLeafSet(id)
+
+	ls.Insert(&peer.AddrInfo{ID: u})
+	ls.Insert(&peer.AddrInfo{ID: max})
+
+	if ls.Max() != max {
+		t.Error("unexpected max")
+	}
+}
+
+func TestLeafSet_Min(t *testing.T) {
+	id := ID()
+	u := LowerID(id)
+	min := LowerID(u)
+
+	ls := state.NewLeafSet(id)
+
+	ls.Insert(&peer.AddrInfo{ID: u})
+	ls.Insert(&peer.AddrInfo{ID: min})
+
+	if ls.Min() != min {
+		t.Error("unexpected min")
+	}
+}
