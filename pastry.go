@@ -1,7 +1,7 @@
 // Package pastry implements a pastry node.
 //
-// The implementation is inspired by [go-libp2p-kad-dht](https://github.com/libp2p/go-libp2p-kad-dht),
-// as well as various Pastry implementations including [wendy](https://github.com/secondbit/wendy).
+// The implementation is inspired by https://github.com/libp2p/go-libp2p-kad-dht,
+// as well as various Pastry implementations including https://github.com/secondbit/wendy.
 package pastry
 
 import (
