@@ -8,7 +8,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 )
 
-func (p *Pastry) subscribe() {
+func (p *Pastry) subscribe() error {
 	defer p.host.Network().StopNotify(p)
 
 	evts := []interface{}{
@@ -25,11 +25,14 @@ func (p *Pastry) subscribe() {
 	}
 
 	subs, err := p.host.EventBus().Subscribe(evts, eventbus.BufSize(256))
+	if err != nil {
+		return err
+	}
 
 	for {
 		e, ok := <-subs.Out()
 		if !ok {
-			return
+			return nil // @todo?
 		}
 
 		switch evt := e.(type) {
