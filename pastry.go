@@ -9,13 +9,16 @@ import (
 
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-core/routing"
 
 	"github.com/decanus/pastry/state"
 )
 
 var logger = logging.Logger("dht")
+var packet = protocol.ID("/ipfs-onion/1.0/packet")
 
 type Pastry struct {
 	LeafSet         state.LeafSet
@@ -32,10 +35,14 @@ type Pastry struct {
 var _ routing.PeerRouting = (*Pastry)(nil)
 
 func New(ctx context.Context, host host.Host) *Pastry {
-	return &Pastry{
+	p := &Pastry{
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
 	}
+
+	p.host.SetStreamHandler(packet, p.streamHandler)
+
+	return p
 }
 
 func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
