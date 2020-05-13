@@ -1,0 +1,6 @@
+// @todo https://github.com/secondbit/wendy/blob/master/message.go#L4-L14
+
+message Message {
+    // @todo basic fields like, peer, hop, etc.
+    // @todo oneof field for message types
+}
