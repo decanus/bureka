@@ -1,4 +1,4 @@
-# pastry
+# Bureka
 
 **:warning: WORK IN PROGRESS! :warning:**
 
