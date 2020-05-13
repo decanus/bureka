@@ -1,4 +1,4 @@
-package set_test
+package state_test
 
 import (
 	"crypto/elliptic"
@@ -8,11 +8,11 @@ import (
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/peer"
 
-	"github.com/decanus/pastry/set"
+	"github.com/decanus/pastry/state"
 )
 
 func TestSet_Insert(t *testing.T) {
-	s := make(set.Set, 0)
+	s := make(state.Set, 0)
 
 	addr := Addr()
 
@@ -24,7 +24,7 @@ func TestSet_Insert(t *testing.T) {
 }
 
 func TestSet_Remove(t *testing.T) {
-	s := make(set.Set, 0)
+	s := make(state.Set, 0)
 
 	addr := Addr()
 
@@ -44,7 +44,7 @@ func TestSet_Remove(t *testing.T) {
 }
 
 func TestSet_Closest(t *testing.T) {
-	s := make(set.Set, 0)
+	s := make(state.Set, 0)
 
 	first := Addr()
 
@@ -61,7 +61,7 @@ func TestSet_Closest(t *testing.T) {
 }
 
 func TestSet_Insert_IsProperlySorted(t *testing.T) {
-	s := make(set.Set, 0)
+	s := make(state.Set, 0)
 
 	first := ID()
 	second := UpperID(first)
@@ -85,7 +85,7 @@ func TestSet_Insert_IsProperlySorted(t *testing.T) {
 }
 
 func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
-	s := make(set.Set, 0)
+	s := make(state.Set, 0)
 
 	first := ID()
 	second := LowerID(first)

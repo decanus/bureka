@@ -1,3 +1,7 @@
+// Package pastry implements a pastry node.
+//
+// The implementation is inspired by [go-libp2p-kad-dht](https://github.com/libp2p/go-libp2p-kad-dht),
+// as well as various Pastry implementations including [wendy](https://github.com/secondbit/wendy).
 package pastry
 
 import (
@@ -6,15 +10,17 @@ import (
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/routing"
 
-	"github.com/decanus/pastry/set"
+	"github.com/decanus/pastry/state"
 )
 
 var logger = logging.Logger("dht")
 
 type Pastry struct {
-	LeafSet          set.LeafSet
-	NeighbourhoodSet set.Set
+	LeafSet         state.LeafSet
+	NeighborhoodSet state.Set
+	RoutingTable    state.RoutingTable
 
 	host host.Host
 
@@ -22,15 +28,14 @@ type Pastry struct {
 	forwardHandler ForwardHandler
 }
 
+// Guarantee that we implement interfaces.
+var _ routing.PeerRouting = (*Pastry)(nil)
+
 func New(ctx context.Context, host host.Host) *Pastry {
 	return &Pastry{
-		LeafSet:          set.NewLeafSet(host.ID()),
-		NeighbourhoodSet: make(set.Set, 0),
+		LeafSet:         state.NewLeafSet(host.ID()),
+		NeighborhoodSet: make(state.Set, 0),
 	}
-}
-
-func (p *Pastry) Route(ctx context.Context) {
-
 }
 
 func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
@@ -40,19 +45,28 @@ func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error
 
 	logger.Debug("finding peer", "peer", id)
 
-	local := p.FindLocal(id)
-	if local != nil {
-		return *local, nil
+	local := p.route(id)
+	if local.ID != "" {
+		return local, nil
 	}
 
 	return peer.AddrInfo{}, nil
 }
 
-func (p *Pastry) FindLocal(id peer.ID) *peer.AddrInfo {
-	closest := p.LeafSet.Closest(id)
-	if closest.ID == id {
-		return closest
+// @todo probably want to return error if not found
+func (p *Pastry) route(to peer.ID) peer.AddrInfo {
+	if p.LeafSet.IsInRange(to) {
+		addr := p.LeafSet.Closest(to)
+		if addr != nil {
+			return *addr
+		}
 	}
 
-	return nil
+	// @todo this is flimsy but will fix later
+	addr := p.RoutingTable.Route(p.host.ID(), to)
+	if addr != nil {
+		return *addr
+	}
+
+	return peer.AddrInfo{}
 }
