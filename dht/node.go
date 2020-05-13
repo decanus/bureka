@@ -98,7 +98,7 @@ func (n *Node) deliver(msg pb.Message) {
 	defer n.RUnlock()
 
 	for _, app := range n.applications {
-		apn.Deliver(msg)
+		app.Deliver(msg)
 	}
 }
 
@@ -110,7 +110,7 @@ func (n *Node) forward(msg pb.Message, target peer.ID) bool {
 	// @todo need to run over this logic
 	forward := true
 	for _, app := range n.applications {
-		f := apn.Forward(msg, target)
+		f := app.Forward(msg, target)
 		if forward {
 			forward = f
 		}
