@@ -1,4 +1,4 @@
-package pastry
+package bureka
 
 import "context"
 

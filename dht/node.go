@@ -1,8 +1,8 @@
-// Package pastry implements a pastry node.
+// Package dht implements a pastry node.
 //
 // The implementation is inspired by https://github.com/libp2p/go-libp2p-kad-dht,
 // as well as various Node implementations including https://github.com/secondbit/wendy.
-package pastry
+package dht
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/routing"
 
+	"github.com/decanus/pastry"
 	"github.com/decanus/pastry/state"
 )
 
@@ -24,8 +25,8 @@ type Node struct {
 
 	host host.Host
 
-	deliverHandler DeliverHandler
-	forwardHandler ForwardHandler
+	deliverHandler bureka.DeliverHandler
+	forwardHandler bureka.ForwardHandler
 }
 
 // Guarantee that we implement interfaces.
