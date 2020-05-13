@@ -1,6 +1,7 @@
 // @todo https://github.com/secondbit/wendy/blob/master/message.go#L4-L14
 
+syntax = "proto3";
+
 message Message {
-    // @todo basic fields like, peer, hop, etc.
-    // @todo oneof field for message types
+    uint64 hops = 1;
 }
