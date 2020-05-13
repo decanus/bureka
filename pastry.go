@@ -9,6 +9,7 @@ import (
 
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/routing"
 
@@ -29,7 +30,10 @@ type Pastry struct {
 }
 
 // Guarantee that we implement interfaces.
-var _ routing.PeerRouting = (*Pastry)(nil)
+var (
+	_ routing.PeerRouting = (*Pastry)(nil)
+	_ network.Notifiee = (*Pastry)(nil)
+)
 
 func New(ctx context.Context, host host.Host) *Pastry {
 	return &Pastry{
@@ -69,4 +73,9 @@ func (p *Pastry) route(to peer.ID) peer.AddrInfo {
 	}
 
 	return peer.AddrInfo{}
+}
+
+func (p *Pastry) discovered(info *peer.AddrInfo) {
+	p.LeafSet.Insert(info)
+	p.NeighborhoodSet = p.NeighborhoodSet.Insert(info)
 }
