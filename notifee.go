@@ -4,6 +4,7 @@ import (
 	"github.com/libp2p/go-eventbus"
 	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/multiformats/go-multiaddr"
 )
 
@@ -31,12 +32,21 @@ func (p *Pastry) subscribe() {
 			return
 		}
 
-		switch event := e.(type) {
+		switch evt := e.(type) {
 		case event.EvtPeerIdentificationCompleted:
-
+			p.handlePeerIdentificationCompleted(evt.Peer)
 		}
 	}
 
+}
+
+func (p *Pastry) handlePeerIdentificationCompleted(id peer.ID) {
+	info := p.host.Peerstore().PeerInfo(id)
+	if info.ID == "" {
+		return // @todo
+	}
+
+	p.discovered(&info)
 }
 
 func (p *Pastry) Listen(network network.Network, multiaddr multiaddr.Multiaddr)      {}
