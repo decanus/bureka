@@ -14,8 +14,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-core/routing"
 
-	"github.com/decanus/pastry/pb"
-	"github.com/decanus/pastry/state"
+	"github.com/decanus/bureka/state"
 )
 
 var logger = logging.Logger("dht")

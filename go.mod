@@ -1,4 +1,4 @@
-module github.com/decanus/pastry
+module github.com/decanus/bureka
 
 go 1.12
 

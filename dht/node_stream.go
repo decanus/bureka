@@ -6,7 +6,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-msgio"
 
-	"github.com/decanus/pastry/pb"
+	"github.com/decanus/bureka/pb"
 )
 
 var dhtReadMessageTimeout = 10 * time.Second

@@ -5,7 +5,7 @@ import (
 
 	"github.com/libp2p/go-libp2p-core/peer"
 
-	"github.com/decanus/pastry/state"
+	"github.com/decanus/bureka/state"
 )
 
 func TestLeafSet_Insert(t *testing.T) {
