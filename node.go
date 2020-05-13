@@ -1,7 +1,7 @@
 // Package pastry implements a pastry node.
 //
 // The implementation is inspired by https://github.com/libp2p/go-libp2p-kad-dht,
-// as well as various Pastry implementations including https://github.com/secondbit/wendy.
+// as well as various Node implementations including https://github.com/secondbit/wendy.
 package pastry
 
 import (
@@ -17,7 +17,7 @@ import (
 
 var logger = logging.Logger("dht")
 
-type Pastry struct {
+type Node struct {
 	LeafSet         state.LeafSet
 	NeighborhoodSet state.Set
 	RoutingTable    state.RoutingTable
@@ -29,23 +29,23 @@ type Pastry struct {
 }
 
 // Guarantee that we implement interfaces.
-var _ routing.PeerRouting = (*Pastry)(nil)
+var _ routing.PeerRouting = (*Node)(nil)
 
-func New(ctx context.Context, host host.Host) *Pastry {
-	return &Pastry{
+func New(ctx context.Context, host host.Host) *Node {
+	return &Node{
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
 	}
 }
 
-func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
+func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
 	if err := id.Validate(); err != nil {
 		return peer.AddrInfo{}, err
 	}
 
 	logger.Debug("finding peer", "peer", id)
 
-	local := p.route(id)
+	local := n.route(id)
 	if local.ID != "" {
 		return local, nil
 	}
@@ -54,16 +54,16 @@ func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error
 }
 
 // @todo probably want to return error if not found
-func (p *Pastry) route(to peer.ID) peer.AddrInfo {
-	if p.LeafSet.IsInRange(to) {
-		addr := p.LeafSet.Closest(to)
+func (n *Node) route(to peer.ID) peer.AddrInfo {
+	if n.LeafSet.IsInRange(to) {
+		addr := n.LeafSet.Closest(to)
 		if addr != nil {
 			return *addr
 		}
 	}
 
 	// @todo this is flimsy but will fix later
-	addr := p.RoutingTable.Route(p.host.ID(), to)
+	addr := n.RoutingTable.Route(n.host.ID(), to)
 	if addr != nil {
 		return *addr
 	}
