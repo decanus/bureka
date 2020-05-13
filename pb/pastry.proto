@@ -1,6 +1,7 @@
 // @todo https://github.com/secondbit/wendy/blob/master/message.go#L4-L14
-
+// protoc --gogo_out=. --proto_path=../../pastry/pb/ pastry.proto
 syntax = "proto3";
+package pb;
 
 message Message {
     string key = 1;
