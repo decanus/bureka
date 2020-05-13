@@ -9,7 +9,6 @@ import (
 
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
-	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-core/routing"
@@ -18,7 +17,7 @@ import (
 )
 
 var logger = logging.Logger("dht")
-var packet = protocol.ID("/ipfs-onion/1.0/packet")
+var proto = protocol.ID("/ipfs-onion/1.0/proto")
 
 type Pastry struct {
 	LeafSet         state.LeafSet
@@ -40,7 +39,7 @@ func New(ctx context.Context, host host.Host) *Pastry {
 		NeighborhoodSet: make(state.Set, 0),
 	}
 
-	p.host.SetStreamHandler(packet, p.streamHandler)
+	p.host.SetStreamHandler(proto, p.streamHandler)
 
 	return p
 }
