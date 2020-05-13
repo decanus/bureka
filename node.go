@@ -1,7 +1,7 @@
 // Package pastry implements a pastry node.
 //
 // The implementation is inspired by https://github.com/libp2p/go-libp2p-kad-dht,
-// as well as various Pastry implementations including https://github.com/secondbit/wendy.
+// as well as various Node implementations including https://github.com/secondbit/wendy.
 package pastry
 
 import (
@@ -27,7 +27,7 @@ type Application interface {
 	Forward(message pb.Message, target peer.ID) bool
 }
 
-type Pastry struct {
+type Node struct {
 	sync.RWMutex
 
 	LeafSet         state.LeafSet
@@ -40,39 +40,39 @@ type Pastry struct {
 }
 
 // Guarantee that we implement interfaces.
-var _ routing.PeerRouting = (*Pastry)(nil)
+var _ routing.PeerRouting = (*Node)(nil)
 
-func New(ctx context.Context, host host.Host) *Pastry {
-	p := &Pastry{
+func New(ctx context.Context, host host.Host) *Node {
+	n := &Node{
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
 	}
 
-	p.host.SetStreamHandler(proto, p.streamHandler)
+	n.host.SetStreamHandler(proto, n.streamHandler)
 
-	return p
+	return n
 }
 
-func (p *Pastry) Send(msg pb.Message) error {
+func (n *Node) Send(msg pb.Message) error {
 	key := peer.ID(msg.Key)
 
-	if key == p.host.ID() {
-		p.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
+	if key == n.host.ID() {
+		n.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
 		return nil
 	}
 
-	target := p.route(key)
+	target := n.route(key)
 	if target.ID == "" {
 		// no target to be found, delivering to self
 		return nil
 	}
 
-	forward := p.forward(msg, target.ID)
+	forward := n.forward(msg, target.ID)
 	if !forward {
 		return nil
 	}
 
-	err := p.send(msg, target.ID)
+	err := n.send(msg, target.ID)
 	if err != nil {
 		return err
 	}
@@ -80,14 +80,14 @@ func (p *Pastry) Send(msg pb.Message) error {
 	return nil
 }
 
-func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
+func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
 	if err := id.Validate(); err != nil {
 		return peer.AddrInfo{}, err
 	}
 
 	logger.Debug("finding peer", "peer", id)
 
-	local := p.route(id)
+	local := n.route(id)
 	if local.ID != "" {
 		return local, nil
 	}
@@ -96,24 +96,24 @@ func (p *Pastry) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error
 }
 
 // deliver sends the message to all connected applications.
-func (p *Pastry) deliver(msg pb.Message) {
-	p.RLock()
-	defer p.RUnlock()
+func (n *Node) deliver(msg pb.Message) {
+	n.RLock()
+	defer n.RUnlock()
 
-	for _, app := range p.applications {
-		app.Deliver(msg)
+	for _, app := range n.applications {
+		apn.Deliver(msg)
 	}
 }
 
 // forward asks all applications whether a message should be forwarded to a peer or not.
-func (p *Pastry) forward(msg pb.Message, target peer.ID) bool {
-	p.RLock()
-	defer p.RUnlock()
+func (n *Node) forward(msg pb.Message, target peer.ID) bool {
+	n.RLock()
+	defer n.RUnlock()
 
 	// @todo need to run over this logic
 	forward := true
-	for _, app := range p.applications {
-		f := app.Forward(msg, target)
+	for _, app := range n.applications {
+		f := apn.Forward(msg, target)
 		if forward {
 			forward = f
 		}
@@ -122,22 +122,22 @@ func (p *Pastry) forward(msg pb.Message, target peer.ID) bool {
 	return forward
 }
 
-func (p *Pastry) send(msg pb.Message, target peer.ID) error {
+func (n *Node) send(msg pb.Message, target peer.ID) error {
 	// @todo
 	return nil
 }
 
 // @todo probably want to return error if not found
-func (p *Pastry) route(to peer.ID) peer.AddrInfo {
-	if p.LeafSet.IsInRange(to) {
-		addr := p.LeafSet.Closest(to)
+func (n *Node) route(to peer.ID) peer.AddrInfo {
+	if n.LeafSet.IsInRange(to) {
+		addr := n.LeafSet.Closest(to)
 		if addr != nil {
 			return *addr
 		}
 	}
 
 	// @todo this is flimsy but will fix later
-	addr := p.RoutingTable.Route(p.host.ID(), to)
+	addr := n.RoutingTable.Route(n.host.ID(), to)
 	if addr != nil {
 		return *addr
 	}

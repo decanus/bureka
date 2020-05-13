@@ -12,15 +12,15 @@ import (
 var dhtReadMessageTimeout = 10 * time.Second
 var dhtStreamIdleTimeout = 1 * time.Minute
 
-func (p *Pastry) streamHandler(stream network.Stream) {
+func (n *Node) streamHandler(stream network.Stream) {
 	defer stream.Reset()
 
-	if p.handleMessage(stream) {
+	if n.handleMessage(stream) {
 		stream.Close()
 	}
 }
 
-func (p *Pastry) handleMessage(s network.Stream) bool {
+func (n *Node) handleMessage(s network.Stream) bool {
 	r := msgio.NewVarintReaderSize(s, network.MessageSizeMax)
 
 	peer := s.Conn().RemotePeer()
