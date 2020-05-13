@@ -3,5 +3,6 @@
 syntax = "proto3";
 
 message Message {
-    uint64 hops = 1;
+    string key = 1;
+    uint64 hops = 2;
 }

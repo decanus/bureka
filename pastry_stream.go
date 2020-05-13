@@ -12,7 +12,6 @@ import (
 var dhtReadMessageTimeout = 10 * time.Second
 var dhtStreamIdleTimeout = 1 * time.Minute
 
-
 func (p *Pastry) streamHandler(stream network.Stream) {
 	defer stream.Reset()
 
