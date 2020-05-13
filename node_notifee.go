@@ -8,8 +8,8 @@ import (
 	"github.com/multiformats/go-multiaddr"
 )
 
-func (p *Pastry) subscribe() error {
-	defer p.host.Network().StopNotify(p)
+func (n *Node) subscribe() error {
+	defer n.host.Network().StopNotify(n)
 
 	evts := []interface{}{
 		// register for event bus notifications of when peers successfully complete identification in order to update
@@ -24,7 +24,7 @@ func (p *Pastry) subscribe() error {
 		new(event.EvtLocalAddressesUpdated),
 	}
 
-	subs, err := p.host.EventBus().Subscribe(evts, eventbus.BufSize(256))
+	subs, err := n.host.EventBus().Subscribe(evts, eventbus.BufSize(256))
 	if err != nil {
 		return err
 	}
@@ -37,24 +37,24 @@ func (p *Pastry) subscribe() error {
 
 		switch evt := e.(type) {
 		case event.EvtPeerIdentificationCompleted:
-			p.handlePeerIdentificationCompleted(evt.Peer)
+			n.handlePeerIdentificationCompleted(evt.Peer)
 		}
 	}
 
 }
 
-func (p *Pastry) handlePeerIdentificationCompleted(id peer.ID) {
-	info := p.host.Peerstore().PeerInfo(id)
+func (n *Node) handlePeerIdentificationCompleted(id peer.ID) {
+	info := n.host.Peerstore().PeerInfo(id)
 	if info.ID == "" {
 		return // @todo
 	}
 
-	p.discovered(&info)
+	n.discovered(&info)
 }
 
-func (p *Pastry) Listen(network network.Network, multiaddr multiaddr.Multiaddr)      {}
-func (p *Pastry) ListenClose(network network.Network, multiaddr multiaddr.Multiaddr) {}
-func (p *Pastry) Connected(network network.Network, conn network.Conn)               {}
-func (p *Pastry) Disconnected(network network.Network, conn network.Conn)            {}
-func (p *Pastry) OpenedStream(network network.Network, stream network.Stream)        {}
-func (p *Pastry) ClosedStream(network network.Network, stream network.Stream)        {}
+func (n *Node) Listen(network network.Network, multiaddr multiaddr.Multiaddr)      {}
+func (n *Node) ListenClose(network network.Network, multiaddr multiaddr.Multiaddr) {}
+func (n *Node) Connected(network network.Network, conn network.Conn)               {}
+func (n *Node) Disconnected(network network.Network, conn network.Conn)            {}
+func (n *Node) OpenedStream(network network.Network, stream network.Stream)        {}
+func (n *Node) ClosedStream(network network.Network, stream network.Stream)        {}
