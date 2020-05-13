@@ -23,7 +23,9 @@ type Application interface {
 	Forward(message pb.Message, target peer.ID) bool
 }
 
-// Node is a pastry node.
+// Node implements the main logic of the DHT.
+// This includes managing the LeafSet, NeighborhoodSet, RoutingTable
+// as well as dealing with messages.
 type Node struct {
 	sync.RWMutex
 
