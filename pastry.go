@@ -19,7 +19,7 @@ import (
 )
 
 var logger = logging.Logger("dht")
-var proto = protocol.ID("/ipfs-onion/1.0/proto")
+var proto = protocol.ID("/pastry/1.0/proto")
 
 // Application represents a pastry application
 type Application interface {
