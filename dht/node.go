@@ -45,8 +45,10 @@ var _ routing.PeerRouting = (*Node)(nil)
 
 func New(ctx context.Context, host host.Host) *Node {
 	n := &Node{
+		ctx:             ctx,
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
+		host:            host,
 	}
 
 	n.host.SetStreamHandler(proto, n.streamHandler)
