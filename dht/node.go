@@ -19,8 +19,8 @@ var proto = protocol.ID("/pastry/1.0/proto")
 
 // Application represents a pastry application
 type Application interface {
-	Deliver(message pb.Message)
-	Forward(message pb.Message, target peer.ID) bool
+	Deliver(message *pb.Message)
+	Forward(message *pb.Message, target peer.ID) bool
 }
 
 // Node implements the main logic of the DHT.
@@ -28,6 +28,8 @@ type Application interface {
 // as well as dealing with messages.
 type Node struct {
 	sync.RWMutex
+
+	ctx context.Context
 
 	LeafSet         state.LeafSet
 	NeighborhoodSet state.Set
@@ -52,7 +54,7 @@ func New(ctx context.Context, host host.Host) *Node {
 	return n
 }
 
-func (n *Node) Send(msg pb.Message) error {
+func (n *Node) Send(msg *pb.Message) error {
 	key := peer.ID(msg.Key)
 
 	if key == n.host.ID() {
@@ -95,7 +97,7 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 }
 
 // deliver sends the message to all connected applications.
-func (n *Node) deliver(msg pb.Message) {
+func (n *Node) deliver(msg *pb.Message) {
 	n.RLock()
 	defer n.RUnlock()
 

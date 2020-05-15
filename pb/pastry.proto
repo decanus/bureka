@@ -4,6 +4,20 @@ syntax = "proto3";
 package pb;
 
 message Message {
-    string key = 1;
-    uint64 hops = 2;
+
+    enum Type {
+        MESSAGE = 0;
+        NODE_JOIN = 1;
+        NODE_ANNOUNCE = 2;
+        NODE_EXIT = 3;
+        HEARTBEAT = 4;
+        REPAIR_REQUEST = 5;
+        STATE_REQUEST = 6;
+        STATE_RESPONSE = 7;
+    }
+
+    Type type = 1;
+    string sender = 2;
+    string key = 3;
+    uint64 hops = 4;
 }
