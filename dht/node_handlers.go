@@ -26,7 +26,10 @@ func (n *Node) onNodeAnnounce(ctx context.Context, from peer.ID, message *pb.Mes
 }
 
 func (n *Node) onNodeExit(ctx context.Context, from peer.ID, message *pb.Message) {
-
+	err := n.remove(peer.ID(message.Sender))
+	if err != nil {
+		// @todo
+	}
 }
 
 func (n *Node) onHeartbeat(ctx context.Context, from peer.ID, message *pb.Message) {

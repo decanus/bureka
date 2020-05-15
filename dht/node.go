@@ -130,6 +130,10 @@ func (n *Node) send(msg *pb.Message, target peer.ID) error {
 	return nil
 }
 
+func (n *Node) remove(peer peer.ID) error {
+	return nil
+}
+
 // @todo probably want to return error if not found
 func (n *Node) route(to peer.ID) peer.AddrInfo {
 	if n.LeafSet.IsInRange(to) {
