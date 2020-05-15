@@ -107,7 +107,7 @@ func (n *Node) deliver(msg *pb.Message) {
 }
 
 // forward asks all applications whether a message should be forwarded to a peer or not.
-func (n *Node) forward(msg pb.Message, target peer.ID) bool {
+func (n *Node) forward(msg *pb.Message, target peer.ID) bool {
 	n.RLock()
 	defer n.RUnlock()
 
@@ -123,7 +123,7 @@ func (n *Node) forward(msg pb.Message, target peer.ID) bool {
 	return forward
 }
 
-func (n *Node) send(msg pb.Message, target peer.ID) error {
+func (n *Node) send(msg *pb.Message, target peer.ID) error {
 	// @todo
 	return nil
 }
