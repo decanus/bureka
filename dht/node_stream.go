@@ -36,28 +36,20 @@ func (n *Node) handleMessage(s network.Stream) {
 			return
 		}
 
-		go func() {
-			switch msg.Type {
-			case pb.Message_MESSAGE:
-				n.onMessage(ctx, peer, msg)
-			case pb.Message_NODE_JOIN:
-				n.onNodeJoin(ctx, peer, msg)
-			case pb.Message_NODE_ANNOUNCE:
-				n.onNodeAnnounce(ctx, peer, msg)
-			case pb.Message_NODE_EXIT:
-				n.onNodeExit(ctx, peer, msg)
-			case pb.Message_HEARTBEAT:
-				n.onHeartbeat(ctx, peer, msg)
-			case pb.Message_REPAIR_REQUEST:
-				n.onRepairRequest(ctx, peer, msg)
-			case pb.Message_STATE_REQUEST:
-				n.onStateRequest(ctx, peer, msg)
-			case pb.Message_STATE_RESPONSE:
-				n.onStateRequest(ctx, peer, msg)
-			}
-		}()
-	}
+		h := n.handler(msg.Type)
+		if h == nil {
+			// @todo
+			continue
+		}
 
+		resp := h(ctx, peer, msg)
+		if resp == nil {
+			// @todo
+			continue
+		}
+
+		// @todo send response
+	}
 }
 
 func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, error) {
@@ -82,4 +74,27 @@ func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, error) {
 	}
 
 	return req, nil
+}
+
+func (n *Node) handler(t pb.Message_Type) HandlerFunc {
+	switch t {
+	case pb.Message_MESSAGE:
+		return n.onMessage
+	case pb.Message_NODE_JOIN:
+		return n.onNodeJoin
+	case pb.Message_NODE_ANNOUNCE:
+		return n.onNodeAnnounce
+	case pb.Message_NODE_EXIT:
+		return n.onNodeExit
+	case pb.Message_HEARTBEAT:
+		return n.onHeartbeat
+	case pb.Message_REPAIR_REQUEST:
+		return n.onRepairRequest
+	case pb.Message_STATE_REQUEST:
+		return n.onStateRequest
+	case pb.Message_STATE_RESPONSE:
+		return n.onStateRequest
+	}
+
+	return nil
 }
