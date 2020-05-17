@@ -131,6 +131,11 @@ func (n *Node) send(msg *pb.Message, target peer.ID) error {
 }
 
 func (n *Node) remove(peer peer.ID) error {
+	n.LeafSet.Remove(peer)
+	n.NeighborhoodSet.Remove(peer)
+
+	// @todo from routing table.
+
 	return nil
 }
 
