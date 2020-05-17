@@ -15,7 +15,7 @@ import (
 )
 
 var logger = logging.Logger("dht")
-var proto = protocol.ID("/pastry/1.0/proto")
+var pastry = protocol.ID("/pastry/1.0/proto")
 
 // Application represents a pastry application
 type Application interface {
@@ -52,7 +52,7 @@ func New(ctx context.Context, host host.Host) *Node {
 		host:            host,
 	}
 
-	n.host.SetStreamHandler(proto, n.streamHandler)
+	n.host.SetStreamHandler(pastry, n.streamHandler)
 
 	return n
 }
