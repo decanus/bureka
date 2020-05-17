@@ -1,12 +1,14 @@
 package dht
 
 import (
+	"io"
 	"time"
 
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-msgio"
 
 	"github.com/decanus/bureka/pb"
+	proto "github.com/gogo/protobuf/proto"
 )
 
 var dhtReadMessageTimeout = 10 * time.Second
@@ -58,5 +60,24 @@ func (n *Node) handleMessage(s network.Stream) {
 }
 
 func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, error) {
-	return nil, nil
+	msgbytes, err := r.ReadMsg()
+	// msgLen := len(msgbytes)
+
+	if err != nil {
+		r.ReleaseMsg(msgbytes)
+		if err == io.EOF {
+			// @todo
+		}
+
+		return nil, err
+	}
+
+	req := &pb.Message{}
+	err = proto.Unmarshal(msgbytes, req)
+	r.ReleaseMsg(msgbytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
