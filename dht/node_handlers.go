@@ -32,8 +32,10 @@ func (n *Node) onNodeExit(ctx context.Context, from peer.ID, message *pb.Message
 	}
 }
 
-func (n *Node) onHeartbeat(ctx context.Context, from peer.ID, message *pb.Message) {
-
+func (n *Node) onHeartbeat(ctx context.Context, _ peer.ID, message *pb.Message) {
+	for _, app := range n.applications {
+		app.Heartbeat(peer.ID(message.Sender))
+	}
 }
 
 func (n *Node) onRepairRequest(ctx context.Context, from peer.ID, message *pb.Message) {

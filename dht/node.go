@@ -21,6 +21,7 @@ var proto = protocol.ID("/pastry/1.0/proto")
 type Application interface {
 	Deliver(message *pb.Message)
 	Forward(message *pb.Message, target peer.ID) bool
+	Heartbeat(id peer.ID)
 }
 
 // Node implements the main logic of the DHT.
