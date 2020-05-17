@@ -15,7 +15,7 @@ import (
 )
 
 var logger = logging.Logger("dht")
-var pastry = protocol.ID("/pastry/1.0/proto")
+const pastry = protocol.ID("/pastry/1.0/proto")
 
 // Application represents a pastry application
 type Application interface {
