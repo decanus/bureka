@@ -6,6 +6,7 @@ import (
 
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-msgio"
+	"github.com/pkg/errors"
 
 	"github.com/decanus/bureka/pb"
 	proto "github.com/gogo/protobuf/proto"
@@ -76,7 +77,8 @@ func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, error) {
 	err = proto.Unmarshal(msgbytes, req)
 	r.ReleaseMsg(msgbytes)
 	if err != nil {
-		return nil, err
+		// @todo logging?
+		return nil, errors.Wrap(err, "error unmarshalling message")
 	}
 
 	return req, nil
