@@ -48,6 +48,12 @@ func (n *Node) handleMessage(s network.Stream) {
 			continue
 		}
 
+		_, err = proto.Marshal(resp)
+		if err != nil {
+			// @todo
+			continue
+		}
+
 		// @todo send response
 	}
 }
