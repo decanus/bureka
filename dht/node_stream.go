@@ -58,5 +58,5 @@ func (n *Node) handleMessage(s network.Stream) {
 }
 
 func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, error) {
-
+	return nil, nil
 }
