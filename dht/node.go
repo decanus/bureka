@@ -57,6 +57,7 @@ func New(ctx context.Context, host host.Host) *Node {
 	return n
 }
 
+// Send delivers a message to the next closest target.
 func (n *Node) Send(msg *pb.Message) error {
 	key := peer.ID(msg.Key)
 
