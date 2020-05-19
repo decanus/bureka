@@ -50,11 +50,20 @@ func New(ctx context.Context, host host.Host) *Node {
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
 		host:            host,
+		applications:    make([]Application, 0),
 	}
 
 	n.host.SetStreamHandler(pastry, n.streamHandler)
 
 	return n
+}
+
+// AddApplication adds an application as a message receiver.
+func (n *Node) AddApplication(app Application) {
+	n.Lock()
+	defer n.Unlock()
+
+	n.applications = append(n.applications, app)
 }
 
 // Send delivers a message to the next closest target.
