@@ -16,22 +16,6 @@ import (
 	internal "github.com/decanus/bureka/dht/internal/mocks"
 )
 
-type MockApplication struct {
-	deliver chan []byte
-}
-
-func (m *MockApplication) Deliver(msg []byte) {
-	m.deliver <- msg
-}
-
-func (m *MockApplication) Forward(msg []byte, target peer.ID) bool {
-	panic("implement me")
-}
-
-func (m *MockApplication) Heartbeat(id peer.ID) {
-	panic("implement me")
-}
-
 func setupDHT(ctx context.Context, t *testing.T) *dht.Node {
 	d, err := dht.New(
 		ctx,
