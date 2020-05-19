@@ -4,15 +4,16 @@ import (
 	"context"
 	"crypto/elliptic"
 	"crypto/rand"
-	"reflect"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/peer"
 	swarmt "github.com/libp2p/go-libp2p-swarm/testing"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 
 	"github.com/decanus/bureka/dht"
+	internal "github.com/decanus/bureka/dht/internal/mocks"
 )
 
 type MockApplication struct {
@@ -45,24 +46,21 @@ func setupDHT(ctx context.Context, t *testing.T) *dht.Node {
 }
 
 func TestNode_Send_To_Self(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	n := setupDHT(context.Background(), t)
 
-	m := &MockApplication{deliver: make(chan []byte)}
-	n.AddApplication(m)
+	mock := internal.NewMockApplication(ctrl)
+	n.AddApplication(mock)
 
 	msg := []byte("hello, world!")
 
-	go func() {
-		err := n.Send(context.Background(), msg, n.ID())
-		if err != nil {
-			t.Fatal(err)
-		}
-	}()
+	mock.EXPECT().Deliver(gomock.Eq(msg)).Times(1)
 
-	b := <- m.deliver
-
-	if !reflect.DeepEqual(b, msg) {
-		t.Errorf("expected: %v actual: %v", msg, b)
+	err := n.Send(context.Background(), msg, n.ID())
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
