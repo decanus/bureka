@@ -41,12 +41,13 @@ type Node struct {
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
-func New(ctx context.Context, host host.Host) *Node {
+func New(ctx context.Context, host host.Host) (*Node, *Node) {
 	return &Node{
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
 		applications:    make([]Application, 0),
-	}
+		host:            host,
+	}, nil
 }
 
 // AddApplication adds an application as a message receiver.
@@ -81,6 +82,11 @@ func (n *Node) Send(ctx context.Context, msg []byte, key peer.ID) error {
 	}
 
 	return nil
+}
+
+// ID returns a nodes ID, mainly for testing purposes.
+func (n *Node) ID() peer.ID  {
+	return n.host.ID()
 }
 
 func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
