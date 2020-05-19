@@ -1,6 +1,7 @@
 package dht
 
 import (
+	"bufio"
 	"context"
 	"sync"
 
@@ -148,9 +149,11 @@ func (n *Node) send(ctx context.Context, msg []byte, target peer.ID) error {
 		return err
 	}
 
-	// @todo maybe use bufferedDelimitedWriter
+	bufw := bufio.NewWriter(s)
 
-	_, err = s.Write(msg)
+	// @todo probably needs this: https://github.com/libp2p/go-libp2p-pubsub/blob/5bbe37191afbb25a953e7931bf1a2ce18fbbb8f3/comm.go#L116
+
+	_, err = bufw.Write(msg)
 	if err != nil {
 		return err
 	}
