@@ -53,6 +53,32 @@ func (n *Node) AddApplication(app Application) {
 	n.applications = append(n.applications, app)
 }
 
+// Send sends a message to the target or the next closest peer.
+func (n *Node) Send(msg []byte, key peer.ID) error {
+	if key == n.host.ID() {
+		n.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
+		return nil
+	}
+
+	target := n.route(key)
+	if target.ID == "" {
+		// no target to be found, delivering to self
+		return nil
+	}
+
+	forward := n.forward(msg, target.ID)
+	if !forward {
+		return nil
+	}
+
+	err := n.send(msg, target.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
 	if err := id.Validate(); err != nil {
 		return peer.AddrInfo{}, err
@@ -84,4 +110,36 @@ func (n *Node) route(to peer.ID) peer.AddrInfo {
 	}
 
 	return peer.AddrInfo{}
+}
+
+// deliver sends the message to all connected applications.
+func (n *Node) deliver(msg []byte) {
+	n.RLock()
+	defer n.RUnlock()
+
+	for _, app := range n.applications {
+		app.Deliver(msg)
+	}
+}
+
+// forward asks all applications whether a message should be forwarded to a peer or not.
+func (n *Node) forward(msg []byte, target peer.ID) bool {
+	n.RLock()
+	defer n.RUnlock()
+
+	// @todo need to run over this logic
+	forward := true
+	for _, app := range n.applications {
+		f := app.Forward(msg, target)
+		if forward {
+			forward = f
+		}
+	}
+
+	return forward
+}
+
+func (n *Node) send(msg []byte, target peer.ID) error {
+	// @todo
+	return nil
 }
