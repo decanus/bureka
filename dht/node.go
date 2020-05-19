@@ -7,12 +7,15 @@ import (
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-core/routing"
 
 	"github.com/decanus/bureka/state"
 )
 
 var logger = logging.Logger("dht")
+
+const pastry protocol.ID = "/pastry/1.0/proto"
 
 // Application represents a pastry application
 type Application interface {
@@ -54,7 +57,7 @@ func (n *Node) AddApplication(app Application) {
 }
 
 // Send sends a message to the target or the next closest peer.
-func (n *Node) Send(msg []byte, key peer.ID) error {
+func (n *Node) Send(ctx context.Context, msg []byte, key peer.ID) error {
 	if key == n.host.ID() {
 		n.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
 		return nil
@@ -71,7 +74,7 @@ func (n *Node) Send(msg []byte, key peer.ID) error {
 		return nil
 	}
 
-	err := n.send(msg, target.ID)
+	err := n.send(ctx, msg, target.ID)
 	if err != nil {
 		return err
 	}
@@ -139,7 +142,18 @@ func (n *Node) forward(msg []byte, target peer.ID) bool {
 	return forward
 }
 
-func (n *Node) send(msg []byte, target peer.ID) error {
-	// @todo
+func (n *Node) send(ctx context.Context, msg []byte, target peer.ID) error {
+	s, err := n.host.NewStream(ctx, target, pastry)
+	if err != nil {
+		return err
+	}
+
+	// @todo maybe use bufferedDelimitedWriter
+
+	_, err = s.Write(msg)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
