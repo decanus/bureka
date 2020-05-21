@@ -4,6 +4,7 @@ import "github.com/libp2p/go-libp2p-core/peer"
 
 type RoutingTable [][]*peer.AddrInfo
 
+// Route returns the node closest to the target.
 func (r RoutingTable) Route(self, target peer.ID) *peer.AddrInfo {
 	p := commonPrefix(self, target)
 
