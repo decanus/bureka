@@ -12,6 +12,7 @@ import (
 
 	"github.com/decanus/bureka/dht"
 	internal "github.com/decanus/bureka/dht/internal/mocks"
+	"github.com/decanus/bureka/pb"
 )
 
 // @TODO MORE TESTS
@@ -54,13 +55,12 @@ func TestNode_Send_To_Self(t *testing.T) {
 	mock := internal.NewMockApplication(ctrl)
 	n.AddApplication(mock)
 
-	msg := []byte("hello, world!")
+	msg := pb.Message{Type: pb.Message_MESSAGE, Key: string(n.ID())}
 
 	mock.EXPECT().Deliver(gomock.Eq(msg)).Times(1)
 
-	err := n.Send(context.Background(), msg, n.ID())
+	err := n.Send(context.Background(), msg)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
-
