@@ -2,13 +2,11 @@ package dht_test
 
 import (
 	"context"
-	"crypto/elliptic"
-	"crypto/rand"
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/peerstore"
 	swarmt "github.com/libp2p/go-libp2p-swarm/testing"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 
@@ -27,6 +25,22 @@ func setupDHT(ctx context.Context, t *testing.T) *dht.Node {
 	}
 
 	return d
+}
+
+func connectNoSync(t *testing.T, ctx context.Context, a, b *dht.Node) {
+	t.Helper()
+
+	idB := b.ID()
+	addrB := b.Host.Peerstore().Addrs(idB)
+	if len(addrB) == 0 {
+		t.Fatal("peers setup incorrectly: no local address")
+	}
+
+	a.Host.Peerstore().AddAddrs(idB, addrB, peerstore.TempAddrTTL)
+	pi := peer.AddrInfo{ID: idB}
+	if err := a.Host.Connect(ctx, pi); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestNode_Send_To_Self(t *testing.T) {
@@ -48,16 +62,3 @@ func TestNode_Send_To_Self(t *testing.T) {
 	}
 }
 
-func ID() peer.ID {
-	pk, _, err := crypto.GenerateECDSAKeyPairWithCurve(elliptic.P256(), rand.Reader)
-	if err != nil {
-		panic(err)
-	}
-
-	id, err := peer.IDFromPrivateKey(pk)
-	if err != nil {
-		panic(err)
-	}
-
-	return id
-}

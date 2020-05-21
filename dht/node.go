@@ -33,7 +33,7 @@ type Node struct {
 	NeighborhoodSet state.Set
 	RoutingTable    state.RoutingTable
 
-	host host.Host
+	Host host.Host
 
 	applications []Application
 }
@@ -46,7 +46,7 @@ func New(ctx context.Context, host host.Host) (*Node, *Node) {
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
 		applications:    make([]Application, 0),
-		host:            host,
+		Host:            host,
 	}, nil
 }
 
@@ -60,7 +60,7 @@ func (n *Node) AddApplication(app Application) {
 
 // Send sends a message to the target or the next closest peer.
 func (n *Node) Send(ctx context.Context, msg []byte, key peer.ID) error {
-	if key == n.host.ID() {
+	if key == n.Host.ID() {
 		n.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
 		return nil
 	}
@@ -86,7 +86,7 @@ func (n *Node) Send(ctx context.Context, msg []byte, key peer.ID) error {
 
 // ID returns a nodes ID, mainly for testing purposes.
 func (n *Node) ID() peer.ID  {
-	return n.host.ID()
+	return n.Host.ID()
 }
 
 func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
@@ -114,7 +114,7 @@ func (n *Node) route(to peer.ID) peer.AddrInfo {
 	}
 
 	// @todo this is flimsy but will fix later
-	addr := n.RoutingTable.Route(n.host.ID(), to)
+	addr := n.RoutingTable.Route(n.Host.ID(), to)
 	if addr != nil {
 		return *addr
 	}
@@ -150,7 +150,7 @@ func (n *Node) forward(msg []byte, target peer.ID) bool {
 }
 
 func (n *Node) send(ctx context.Context, msg []byte, target peer.ID) error {
-	s, err := n.host.NewStream(ctx, target, pastry)
+	s, err := n.Host.NewStream(ctx, target, pastry)
 	if err != nil {
 		return err
 	}
