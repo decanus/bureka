@@ -89,7 +89,7 @@ func (n *Node) Send(ctx context.Context, msg pb.Message) error {
 }
 
 // ID returns a nodes ID, mainly for testing purposes.
-func (n *Node) ID() peer.ID  {
+func (n *Node) ID() peer.ID {
 	return n.Host.ID()
 }
 

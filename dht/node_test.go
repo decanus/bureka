@@ -55,7 +55,7 @@ func TestNode_Send_To_Self(t *testing.T) {
 	mock := internal.NewMockApplication(ctrl)
 	n.AddApplication(mock)
 
-	msg := pb.Message{ Type: pb.Message_MESSAGE, Key: string(n.ID())}
+	msg := pb.Message{Type: pb.Message_MESSAGE, Key: string(n.ID())}
 
 	mock.EXPECT().Deliver(gomock.Eq(msg)).Times(1)
 
@@ -64,4 +64,3 @@ func TestNode_Send_To_Self(t *testing.T) {
 		t.Fatal(err)
 	}
 }
-
