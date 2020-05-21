@@ -1,8 +1,8 @@
 package dht
 
 import (
-	"bufio"
 	"context"
+	"fmt"
 	"sync"
 
 	logging "github.com/ipfs/go-log"
@@ -36,6 +36,8 @@ type Node struct {
 	Host host.Host
 
 	applications []Application
+
+	writers map[peer.ID] chan <- []byte
 }
 
 // Guarantee that we implement interfaces.
@@ -76,7 +78,7 @@ func (n *Node) Send(ctx context.Context, msg []byte, key peer.ID) error {
 		return nil
 	}
 
-	err := n.send(ctx, msg, target.ID)
+	err := n.send(msg, target.ID)
 	if err != nil {
 		return err
 	}
@@ -149,20 +151,12 @@ func (n *Node) forward(msg []byte, target peer.ID) bool {
 	return forward
 }
 
-func (n *Node) send(ctx context.Context, msg []byte, target peer.ID) error {
-	s, err := n.Host.NewStream(ctx, target, pastry)
-	if err != nil {
-		return err
+func (n *Node) send(msg []byte, target peer.ID) error {
+	out, ok := n.writers[target]
+	if !ok {
+		return fmt.Errorf("peer %s not found", string(target))
 	}
 
-	bufw := bufio.NewWriter(s)
-
-	// @todo probably needs this: https://github.com/libp2p/go-libp2p-pubsub/blob/5bbe37191afbb25a953e7931bf1a2ce18fbbb8f3/comm.go#L116
-
-	_, err = bufw.Write(msg)
-	if err != nil {
-		return err
-	}
-
+	out <- msg
 	return nil
 }
