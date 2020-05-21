@@ -5,14 +5,8 @@ package pb
 
 import (
 	fmt "fmt"
-<<<<<<< HEAD
-	math "math"
-
-	proto "github.com/gogo/protobuf/proto"
-=======
 	proto "github.com/gogo/protobuf/proto"
 	math "math"
->>>>>>> master
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
