@@ -9,3 +9,4 @@ mock:
 proto:
 	protoc --gogo_out=./pb/ --proto_path=./pb/ pastry.proto
 .PHONY: proto
+
