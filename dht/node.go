@@ -1,11 +1,10 @@
 package dht
 
 import (
-	"bufio"
 	"context"
+	"fmt"
 	"sync"
 
-	ggio "github.com/gogo/protobuf/io"
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -38,6 +37,8 @@ type Node struct {
 	Host host.Host
 
 	applications []Application
+
+	writers map[peer.ID]chan<- pb.Message
 }
 
 // Guarantee that we implement interfaces.
@@ -80,7 +81,7 @@ func (n *Node) Send(ctx context.Context, msg pb.Message) error {
 		return nil
 	}
 
-	err := n.send(ctx, msg, target.ID)
+	err := n.send(msg, target.ID)
 	if err != nil {
 		return err
 	}
@@ -153,21 +154,12 @@ func (n *Node) forward(msg pb.Message, target peer.ID) bool {
 	return forward
 }
 
-// @todo this needs to be more like this: https://github.com/libp2p/go-libp2p-pubsub/blob/5bbe37191afbb25a953e7931bf1a2ce18fbbb8f3/comm.go#L71
-// we should reuse the stream and have a loop function for sending messages.
-func (n *Node) send(ctx context.Context, msg pb.Message, target peer.ID) error {
-	s, err := n.Host.NewStream(ctx, target, pastry)
-	if err != nil {
-		return err
+func (n *Node) send(msg pb.Message, target peer.ID) error {
+	out, ok := n.writers[target]
+	if !ok {
+		return fmt.Errorf("peer %s not found", string(target))
 	}
 
-	bufw := bufio.NewWriter(s)
-	wc := ggio.NewDelimitedWriter(bufw)
-
-	err = wc.WriteMsg(&msg)
-	if err != nil {
-		return err
-	}
-
-	return bufw.Flush()
+	out <- msg
+	return nil
 }
