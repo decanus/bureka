@@ -38,7 +38,7 @@ type Node struct {
 
 	applications []Application
 
-	writers map[peer.ID] chan <- pb.Message
+	writers map[peer.ID]chan<- pb.Message
 }
 
 // Guarantee that we implement interfaces.

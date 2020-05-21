@@ -43,4 +43,3 @@ func (n *Node) handleMessageSending(ctx context.Context, s network.Stream, outgo
 		}
 	}
 }
-
