@@ -48,7 +48,7 @@ var _ routing.PeerRouting = (*Node)(nil)
 
 func New(ctx context.Context, host host.Host) *Node {
 	n := &Node{
-		ctx: ctx,
+		ctx:             ctx,
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
 		applications:    make([]Application, 0),
@@ -176,6 +176,6 @@ func (n *Node) createWriter(target peer.ID) chan pb.Message {
 	defer n.Unlock()
 
 	c := make(chan pb.Message) // @todo buffer size
-	n.writers[target]  = c
+	n.writers[target] = c
 	return c
 }
