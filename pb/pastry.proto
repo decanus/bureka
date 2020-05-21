@@ -1,0 +1,25 @@
+// @todo https://github.com/secondbit/wendy/blob/master/message.go#L4-L14
+// protoc --gogo_out=./pb/ --proto_path=./pb/ pastry.proto
+syntax = "proto3";
+package pb;
+
+message Message {
+
+    enum Type {
+        MESSAGE = 0;
+        NODE_JOIN = 1;
+        NODE_ANNOUNCE = 2;
+        NODE_EXIT = 3;
+        HEARTBEAT = 4;
+        REPAIR_REQUEST = 5;
+        STATE_REQUEST = 6;
+        STATE_RESPONSE = 7;
+    }
+
+    Type type = 1;
+    string sender = 2;
+    string key = 3;
+    uint64 hops = 4;
+
+    // @todo signature and all that
+}

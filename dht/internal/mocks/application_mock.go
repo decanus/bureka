@@ -5,6 +5,7 @@
 package internal
 
 import (
+	pb "github.com/decanus/bureka/pb"
 	gomock "github.com/golang/mock/gomock"
 	peer "github.com/libp2p/go-libp2p-core/peer"
 	reflect "reflect"
@@ -34,7 +35,7 @@ func (m *MockApplication) EXPECT() *MockApplicationMockRecorder {
 }
 
 // Deliver mocks base method
-func (m *MockApplication) Deliver(msg []byte) {
+func (m *MockApplication) Deliver(msg pb.Message) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Deliver", msg)
 }
@@ -46,7 +47,7 @@ func (mr *MockApplicationMockRecorder) Deliver(msg interface{}) *gomock.Call {
 }
 
 // Forward mocks base method
-func (m *MockApplication) Forward(msg []byte, target peer.ID) bool {
+func (m *MockApplication) Forward(msg pb.Message, target peer.ID) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Forward", msg, target)
 	ret0, _ := ret[0].(bool)
