@@ -17,7 +17,11 @@ func (n *Node) streamHandler(s network.Stream) {
 
 	go n.handleMessageSending(n.ctx, s, n.createWriter(s.Conn().RemotePeer()))
 
-	// @todo listen to messages
+	n.handleIncomingMessages(n.ctx, s)
+}
+
+func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
+
 }
 
 func (n *Node) handleMessageSending(ctx context.Context, s network.Stream, outgoing <-chan pb.Message) {
