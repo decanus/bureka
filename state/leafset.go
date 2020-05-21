@@ -60,11 +60,19 @@ func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
 
 // Min returns the farthest key to the smaller side.
 func (l LeafSet) Min() peer.ID {
+	if len(l.smaller) == 0 {
+		return ""
+	}
+
 	return l.smaller[len(l.smaller)-1].ID
 }
 
 // Max returns the farthest key to the larger side.
 func (l LeafSet) Max() peer.ID {
+	if len(l.larger) == 0 {
+		return ""
+	}
+
 	return l.larger[0].ID
 }
 

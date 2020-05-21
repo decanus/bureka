@@ -1,5 +1,9 @@
 // @todo https://github.com/secondbit/wendy/blob/master/message.go#L4-L14
+<<<<<<< HEAD
 // protoc --gogo_out=. --proto_path=../../pastry/pb/ pastry.proto
+=======
+// protoc --gogo_out=./pb/ --proto_path=./pb/ pastry.proto
+>>>>>>> master
 syntax = "proto3";
 package pb;
 
@@ -20,4 +24,11 @@ message Message {
     string sender = 2;
     string key = 3;
     uint64 hops = 4;
+<<<<<<< HEAD
 }
+=======
+
+    // @todo signature and all that
+}
+
+>>>>>>> master

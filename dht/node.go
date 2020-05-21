@@ -2,6 +2,7 @@ package dht
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	logging "github.com/ipfs/go-log"
@@ -17,10 +18,12 @@ import (
 var logger = logging.Logger("dht")
 const pastry = protocol.ID("/pastry/1.0/proto")
 
+const pastry protocol.ID = "/pastry/1.0/proto"
+
 // Application represents a pastry application
 type Application interface {
-	Deliver(message *pb.Message)
-	Forward(message *pb.Message, target peer.ID) bool
+	Deliver(msg pb.Message)
+	Forward(msg pb.Message, target peer.ID) bool
 	Heartbeat(id peer.ID)
 }
 
@@ -36,9 +39,11 @@ type Node struct {
 	NeighborhoodSet state.Set
 	RoutingTable    state.RoutingTable
 
-	host host.Host
+	Host host.Host
 
 	applications []Application
+
+	writers map[peer.ID]chan<- pb.Message
 }
 
 // Guarantee that we implement interfaces.
@@ -49,11 +54,11 @@ func New(ctx context.Context, host host.Host) *Node {
 		ctx:             ctx,
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
-		host:            host,
+		Host:            host,
 		applications:    make([]Application, 0),
 	}
 
-	n.host.SetStreamHandler(pastry, n.streamHandler)
+	n.Host.SetStreamHandler(pastry, n.streamHandler)
 
 	return n
 }
@@ -67,10 +72,10 @@ func (n *Node) AddApplication(app Application) {
 }
 
 // Send delivers a message to the next closest target.
-func (n *Node) Send(msg *pb.Message) error {
+func (n *Node) Send(msg pb.Message) error {
 	key := peer.ID(msg.Key)
 
-	if key == n.host.ID() {
+	if key == n.Host.ID() {
 		n.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
 		return nil
 	}
@@ -94,6 +99,11 @@ func (n *Node) Send(msg *pb.Message) error {
 	return nil
 }
 
+// ID returns a nodes ID, mainly for testing purposes.
+func (n *Node) ID() peer.ID {
+	return n.Host.ID()
+}
+
 func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
 	if err := id.Validate(); err != nil {
 		return peer.AddrInfo{}, err
@@ -107,38 +117,6 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 	}
 
 	return peer.AddrInfo{}, nil
-}
-
-// deliver sends the message to all connected applications.
-func (n *Node) deliver(msg *pb.Message) {
-	n.RLock()
-	defer n.RUnlock()
-
-	for _, app := range n.applications {
-		app.Deliver(msg)
-	}
-}
-
-// forward asks all applications whether a message should be forwarded to a peer or not.
-func (n *Node) forward(msg *pb.Message, target peer.ID) bool {
-	n.RLock()
-	defer n.RUnlock()
-
-	// @todo need to run over this logic
-	forward := true
-	for _, app := range n.applications {
-		f := app.Forward(msg, target)
-		if forward {
-			forward = f
-		}
-	}
-
-	return forward
-}
-
-func (n *Node) send(msg *pb.Message, target peer.ID) error {
-	// @todo
-	return nil
 }
 
 func (n *Node) remove(peer peer.ID) error {
@@ -160,10 +138,47 @@ func (n *Node) route(to peer.ID) peer.AddrInfo {
 	}
 
 	// @todo this is flimsy but will fix later
-	addr := n.RoutingTable.Route(n.host.ID(), to)
+	addr := n.RoutingTable.Route(n.Host.ID(), to)
 	if addr != nil {
 		return *addr
 	}
 
 	return peer.AddrInfo{}
+}
+
+// deliver sends the message to all connected applications.
+func (n *Node) deliver(msg pb.Message) {
+	n.RLock()
+	defer n.RUnlock()
+
+	for _, app := range n.applications {
+		app.Deliver(msg)
+	}
+}
+
+// forward asks all applications whether a message should be forwarded to a peer or not.
+func (n *Node) forward(msg pb.Message, target peer.ID) bool {
+	n.RLock()
+	defer n.RUnlock()
+
+	// @todo need to run over this logic
+	forward := true
+	for _, app := range n.applications {
+		f := app.Forward(msg, target)
+		if forward {
+			forward = f
+		}
+	}
+
+	return forward
+}
+
+func (n *Node) send(msg pb.Message, target peer.ID) error {
+	out, ok := n.writers[target]
+	if !ok {
+		return fmt.Errorf("peer %s not found", string(target))
+	}
+
+	out <- msg
+	return nil
 }

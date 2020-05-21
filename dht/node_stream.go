@@ -1,6 +1,8 @@
 package dht
 
 import (
+	"bufio"
+	"context"
 	"io"
 	"time"
 
@@ -8,6 +10,9 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-msgio"
 	"github.com/pkg/errors"
+
+	ggio "github.com/gogo/protobuf/io"
+	"github.com/libp2p/go-libp2p-core/helpers"
 
 	"github.com/decanus/bureka/pb"
 )
@@ -103,4 +108,36 @@ func (n *Node) handler(t pb.Message_Type) HandlerFunc {
 	}
 
 	return nil
+}
+
+func (n *Node) handleMessageSending(ctx context.Context, s network.Stream, outgoing <-chan pb.Message) {
+	bufw := bufio.NewWriter(s)
+	wc := ggio.NewDelimitedWriter(bufw)
+
+	writeMsg := func(msg proto.Message) error {
+		err := wc.WriteMsg(msg)
+		if err != nil {
+			return err
+		}
+
+		return bufw.Flush()
+	}
+
+	defer helpers.FullClose(s)
+	for {
+		select {
+		case msg, ok := <-outgoing:
+			if !ok {
+				return
+			}
+
+			err := writeMsg(&msg)
+			if err != nil {
+				s.Reset()
+				return
+			}
+		case <-ctx.Done():
+			return
+		}
+	}
 }
