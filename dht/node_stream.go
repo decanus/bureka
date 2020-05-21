@@ -12,6 +12,10 @@ import (
 	"github.com/decanus/bureka/pb"
 )
 
+func (n *Node) streamHandler(s network.Stream) {
+
+}
+
 func (n *Node) handleMessageSending(ctx context.Context, s network.Stream, outgoing <-chan pb.Message) {
 	bufw := bufio.NewWriter(s)
 	wc := ggio.NewDelimitedWriter(bufw)

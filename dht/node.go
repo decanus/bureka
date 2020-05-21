@@ -44,13 +44,17 @@ type Node struct {
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
-func New(ctx context.Context, host host.Host) (*Node, *Node) {
-	return &Node{
+func New(ctx context.Context, host host.Host) *Node {
+	n := &Node{
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
 		applications:    make([]Application, 0),
 		Host:            host,
-	}, nil
+	}
+
+	n.Host.SetStreamHandler(pastry, n.streamHandler)
+
+	return n
 }
 
 // AddApplication adds an application as a message receiver.
