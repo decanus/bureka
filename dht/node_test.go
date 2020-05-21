@@ -18,16 +18,10 @@ import (
 // @TODO MORE TESTS
 
 func setupDHT(ctx context.Context, t *testing.T) *dht.Node {
-	d, err := dht.New(
+	return dht.New(
 		ctx,
 		bhost.New(swarmt.GenSwarm(t, ctx, swarmt.OptDisableReuseport)),
 	)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return d
 }
 
 func connectNoSync(t *testing.T, ctx context.Context, a, b *dht.Node) {
