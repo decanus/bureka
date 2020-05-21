@@ -14,6 +14,8 @@ import (
 	internal "github.com/decanus/bureka/dht/internal/mocks"
 )
 
+// @TODO MORE TESTS
+
 func setupDHT(ctx context.Context, t *testing.T) *dht.Node {
 	d, err := dht.New(
 		ctx,
