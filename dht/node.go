@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"sync"
 
+	ggio "github.com/gogo/protobuf/io"
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-core/routing"
 
+	"github.com/decanus/bureka/pb"
 	"github.com/decanus/bureka/state"
 )
 
@@ -20,8 +22,8 @@ const pastry protocol.ID = "/pastry/1.0/proto"
 
 // Application represents a pastry application
 type Application interface {
-	Deliver(msg []byte)
-	Forward(msg []byte, target peer.ID) bool
+	Deliver(msg pb.Message)
+	Forward(msg pb.Message, target peer.ID) bool
 	Heartbeat(id peer.ID)
 }
 
@@ -37,7 +39,7 @@ type Node struct {
 
 	applications []Application
 
-	writers map[peer.ID] chan <- []byte
+	writers map[peer.ID] chan <- pb.Message
 }
 
 // Guarantee that we implement interfaces.
@@ -61,7 +63,9 @@ func (n *Node) AddApplication(app Application) {
 }
 
 // Send sends a message to the target or the next closest peer.
-func (n *Node) Send(ctx context.Context, msg []byte, key peer.ID) error {
+func (n *Node) Send(ctx context.Context, msg pb.Message) error {
+	key := peer.ID(msg.Key)
+
 	if key == n.Host.ID() {
 		n.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
 		return nil
@@ -87,7 +91,7 @@ func (n *Node) Send(ctx context.Context, msg []byte, key peer.ID) error {
 }
 
 // ID returns a nodes ID, mainly for testing purposes.
-func (n *Node) ID() peer.ID  {
+func (n *Node) ID() peer.ID {
 	return n.Host.ID()
 }
 
@@ -125,7 +129,7 @@ func (n *Node) route(to peer.ID) peer.AddrInfo {
 }
 
 // deliver sends the message to all connected applications.
-func (n *Node) deliver(msg []byte) {
+func (n *Node) deliver(msg pb.Message) {
 	n.RLock()
 	defer n.RUnlock()
 
@@ -135,7 +139,7 @@ func (n *Node) deliver(msg []byte) {
 }
 
 // forward asks all applications whether a message should be forwarded to a peer or not.
-func (n *Node) forward(msg []byte, target peer.ID) bool {
+func (n *Node) forward(msg pb.Message, target peer.ID) bool {
 	n.RLock()
 	defer n.RUnlock()
 
@@ -151,7 +155,7 @@ func (n *Node) forward(msg []byte, target peer.ID) bool {
 	return forward
 }
 
-func (n *Node) send(msg []byte, target peer.ID) error {
+func (n *Node) send(msg pb.Message, target peer.ID) error {
 	out, ok := n.writers[target]
 	if !ok {
 		return fmt.Errorf("peer %s not found", string(target))
