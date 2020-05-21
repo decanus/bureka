@@ -18,12 +18,10 @@ import (
 var logger = logging.Logger("dht")
 const pastry = protocol.ID("/pastry/1.0/proto")
 
-const pastry protocol.ID = "/pastry/1.0/proto"
-
 // Application represents a pastry application
 type Application interface {
-	Deliver(msg pb.Message)
-	Forward(msg pb.Message, target peer.ID) bool
+	Deliver(msg *pb.Message)
+	Forward(msg *pb.Message, target peer.ID) bool
 	Heartbeat(id peer.ID)
 }
 
@@ -72,7 +70,7 @@ func (n *Node) AddApplication(app Application) {
 }
 
 // Send delivers a message to the next closest target.
-func (n *Node) Send(msg pb.Message) error {
+func (n *Node) Send(msg *pb.Message) error {
 	key := peer.ID(msg.Key)
 
 	if key == n.Host.ID() {
@@ -147,7 +145,7 @@ func (n *Node) route(to peer.ID) peer.AddrInfo {
 }
 
 // deliver sends the message to all connected applications.
-func (n *Node) deliver(msg pb.Message) {
+func (n *Node) deliver(msg *pb.Message) {
 	n.RLock()
 	defer n.RUnlock()
 
@@ -157,7 +155,7 @@ func (n *Node) deliver(msg pb.Message) {
 }
 
 // forward asks all applications whether a message should be forwarded to a peer or not.
-func (n *Node) forward(msg pb.Message, target peer.ID) bool {
+func (n *Node) forward(msg *pb.Message, target peer.ID) bool {
 	n.RLock()
 	defer n.RUnlock()
 
@@ -173,12 +171,12 @@ func (n *Node) forward(msg pb.Message, target peer.ID) bool {
 	return forward
 }
 
-func (n *Node) send(msg pb.Message, target peer.ID) error {
+func (n *Node) send(msg *pb.Message, target peer.ID) error {
 	out, ok := n.writers[target]
 	if !ok {
 		return fmt.Errorf("peer %s not found", string(target))
 	}
 
-	out <- msg
+	out <- *msg
 	return nil
 }
