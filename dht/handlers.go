@@ -8,7 +8,7 @@ import (
 	"github.com/decanus/bureka/pb"
 )
 
-type HandlerFunc func (ctx context.Context, from peer.ID, message *pb.Message) *pb.Message
+type HandlerFunc func(ctx context.Context, from peer.ID, message *pb.Message) *pb.Message
 
 func (n *Node) handler(t pb.Message_Type) HandlerFunc {
 	return nil
