@@ -25,7 +25,6 @@ func (n *Node) streamHandler(s network.Stream) {
 
 func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
 	r := msgio.NewVarintReaderSize(s, network.MessageSizeMax)
-	ctx := n.ctx
 	peer := s.Conn().RemotePeer()
 
 	for {
@@ -34,9 +33,23 @@ func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
 			return
 		}
 
-		// @todo
-	}
+		h := n.handler(msg.Type)
+		if h == nil {
+			// @todo
+			continue
+		}
 
+		resp := h(ctx, peer, msg)
+		if resp == nil {
+			// @todo
+			continue
+		}
+
+		err = n.send(*resp, peer)
+		if err != nil {
+			// @todo
+		}
+	}
 }
 
 func (n *Node) handleMessageSending(ctx context.Context, s network.Stream, outgoing <-chan pb.Message) {
