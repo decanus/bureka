@@ -28,9 +28,13 @@ func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
 	peer := s.Conn().RemotePeer()
 
 	for {
-		msg, err := n.latestMessage(r)
-		if err != nil {
+		msg, done, err := n.latestMessage(r)
+		if done {
 			return
+		}
+
+		if err != nil {
+			continue // @todo?
 		}
 
 		h := n.handler(msg.Type)
@@ -84,17 +88,18 @@ func (n *Node) handleMessageSending(ctx context.Context, s network.Stream, outgo
 	}
 }
 
-func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, error) {
+func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, bool, error) {
 	msgbytes, err := r.ReadMsg()
 	// msgLen := len(msgbytes)
 
 	if err != nil {
 		r.ReleaseMsg(msgbytes)
 		if err == io.EOF {
+			return nil, true, nil
 			// @todo
 		}
 
-		return nil, err
+		return nil, false, err
 	}
 
 	req := &pb.Message{}
@@ -102,8 +107,8 @@ func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, error) {
 	r.ReleaseMsg(msgbytes)
 	if err != nil {
 		// @todo logging?
-		return nil, errors.Wrap(err, "error unmarshalling message")
+		return nil, false, errors.Wrap(err, "error unmarshalling message")
 	}
 
-	return req, nil
+	return req, false, nil
 }
