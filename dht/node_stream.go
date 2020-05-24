@@ -43,7 +43,7 @@ func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
 			continue
 		}
 
-		resp := h(ctx, peer, msg)
+		resp := h(ctx, peer, *msg)
 		if resp == nil {
 			// @todo
 			continue
@@ -90,7 +90,6 @@ func (n *Node) handleMessageSending(ctx context.Context, s network.Stream, outgo
 
 func (n *Node) latestMessage(r msgio.ReadCloser) (*pb.Message, bool, error) {
 	msgbytes, err := r.ReadMsg()
-	// msgLen := len(msgbytes)
 
 	if err != nil {
 		r.ReleaseMsg(msgbytes)

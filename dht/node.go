@@ -179,3 +179,13 @@ func (n *Node) createWriter(target peer.ID) chan pb.Message {
 	n.writers[target] = c
 	return c
 }
+
+func (n *Node) remove(id peer.ID) error {
+	n.Lock()
+	defer n.Unlock()
+
+	n.NeighborhoodSet.Remove(id)
+	n.LeafSet.Remove(id)
+
+	return nil
+}
