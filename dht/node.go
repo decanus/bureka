@@ -19,6 +19,9 @@ var logger = logging.Logger("dht")
 
 const pastry protocol.ID = "/pastry/1.0/proto"
 
+// ApplicationID represents a unique identifier for the application.
+type ApplicationID string
+
 // Application represents a pastry application
 type Application interface {
 	Deliver(msg pb.Message)
@@ -38,7 +41,7 @@ type Node struct {
 
 	Host host.Host
 
-	applications []Application
+	applications map[ApplicationID]Application
 
 	writers map[peer.ID]chan<- pb.Message
 }
@@ -51,7 +54,7 @@ func New(ctx context.Context, host host.Host) *Node {
 		ctx:             ctx,
 		LeafSet:         state.NewLeafSet(host.ID()),
 		NeighborhoodSet: make(state.Set, 0),
-		applications:    make([]Application, 0),
+		applications:    make(map[ApplicationID]Application),
 		Host:            host,
 	}
 
@@ -61,11 +64,19 @@ func New(ctx context.Context, host host.Host) *Node {
 }
 
 // AddApplication adds an application as a message receiver.
-func (n *Node) AddApplication(app Application) {
+func (n *Node) AddApplication(aid ApplicationID, app Application) {
 	n.Lock()
 	defer n.Unlock()
 
-	n.applications = append(n.applications, app)
+	n.applications[aid] = app
+}
+
+// RemoveApplication removes an application from the set.
+func (n *Node) RemoveApplication(aid ApplicationID) {
+	n.Lock()
+	defer n.Unlock()
+
+	delete(n.applications, aid)
 }
 
 // Send sends a message to the target or the next closest peer.

@@ -47,7 +47,7 @@ func TestNode_Send_To_Self(t *testing.T) {
 	n := setupDHT(context.Background(), t)
 
 	mock := internal.NewMockApplication(ctrl)
-	n.AddApplication(mock)
+	n.AddApplication(dht.ApplicationID("app"), mock)
 
 	msg := pb.Message{Type: pb.Message_MESSAGE, Key: string(n.ID())}
 
