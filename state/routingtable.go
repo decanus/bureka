@@ -33,6 +33,7 @@ func (r RoutingTable) Route(self, target peer.ID) peer.ID {
 	return ""
 }
 
+// Insert adds a node to the RoutingTable.
 func (r RoutingTable) Insert(self, id peer.ID) RoutingTable {
 	p := commonPrefix(self, id)
 	if p > len(r) {
