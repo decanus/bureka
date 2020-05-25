@@ -1,6 +1,11 @@
 package state
 
-import "github.com/libp2p/go-libp2p-core/peer"
+import (
+	"bytes"
+	"sort"
+
+	"github.com/libp2p/go-libp2p-core/peer"
+)
 
 type RoutingTable [][]peer.ID
 
@@ -26,6 +31,45 @@ func (r RoutingTable) Route(self, target peer.ID) peer.ID {
 	// @todo find node closer numerically
 
 	return ""
+}
+
+func (r RoutingTable) Insert(self, id peer.ID) RoutingTable {
+	p := commonPrefix(self, id)
+	if p > len(r) {
+		r = r.grow(p)
+	}
+
+	row := r[p]
+
+	byteid, _ := id.MarshalBinary()
+
+	i := sort.Search(len(row), func(i int) bool {
+		cmp, _ := (row)[i].MarshalBinary()
+		return bytes.Compare(byteid, cmp) >= 0
+	})
+
+	if i < len(row) && row[i] == id || i >= Length {
+		return r
+	}
+
+	nr := append(row, "")
+	copy(nr[i+1:], nr[i:])
+	nr[i] = id
+
+	r[p] = nr
+
+	return r
+}
+
+func (r RoutingTable) grow(n int) RoutingTable {
+	if n > len(r) {
+		appends := len(r) - n
+		for i := 0; i <= appends; i++ {
+			r = append(r, make([]peer.ID, 0))
+		}
+	}
+
+	return r
 }
 
 func commonPrefix(self, target peer.ID) int {
