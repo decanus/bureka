@@ -7,6 +7,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 )
 
+// RoutingTable contains nodes organized by their distance to a peer.
 type RoutingTable [][]peer.ID
 
 // Route returns the node closest to the target.
