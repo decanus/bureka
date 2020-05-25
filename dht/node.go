@@ -6,10 +6,12 @@ import (
 	"sync"
 
 	logging "github.com/ipfs/go-log"
+	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-core/routing"
+	dht "github.com/libp2p/go-libp2p-kad-dht"
 
 	"github.com/decanus/bureka/pb"
 	"github.com/decanus/bureka/state"
@@ -44,12 +46,14 @@ type Node struct {
 	applications map[ApplicationID]Application
 
 	writers map[peer.ID]chan<- pb.Message
+
+	sub event.Subscription
 }
 
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
-func New(ctx context.Context, host host.Host) *Node {
+func New(ctx context.Context, host host.Host) (*Node, error) {
 	n := &Node{
 		ctx:             ctx,
 		LeafSet:         state.NewLeafSet(host.ID()),
@@ -60,7 +64,21 @@ func New(ctx context.Context, host host.Host) *Node {
 
 	n.Host.SetStreamHandler(pastry, n.streamHandler)
 
-	return n
+	s, err := n.subscribe()
+	if err != nil {
+		return nil, err
+	}
+
+	n.sub = s
+
+	// adds the already known peers
+	for _, p := range n.Host.Network().Peers() {
+		n.addPeer(p)
+	}
+
+	go n.poll(n.sub)
+
+	return n, nil
 }
 
 // AddApplication adds an application as a message receiver.
