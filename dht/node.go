@@ -196,5 +196,6 @@ func (n *Node) addPeer(id peer.ID) {
 	defer n.Unlock()
 
 	n.LeafSet.Insert(id)
+	n.NeighborhoodSet.Insert(id)
 	n.RoutingTable = n.RoutingTable.Insert(n.ID(), id)
 }
