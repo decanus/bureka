@@ -1,14 +1,11 @@
 package state
 
 import (
-	"bytes"
-	"sort"
-
 	"github.com/libp2p/go-libp2p-core/peer"
 )
 
 // RoutingTable contains nodes organized by their distance to a peer.
-type RoutingTable [][]peer.ID
+type RoutingTable []Set
 
 // Route returns the node closest to the target.
 func (r RoutingTable) Route(self, target peer.ID) peer.ID {
@@ -21,53 +18,27 @@ func (r RoutingTable) Route(self, target peer.ID) peer.ID {
 
 	row := r[p]
 
-	b, _ := target.MarshalBinary()
-
-	// @todo this may be wrong
-	// see: https://github.com/secondbit/wendy/blob/e4601da9fbf96fd1f6e81a18e58db10b57bce3ff/nodeid.go#L214
-	if row[b[p]] != "" {
-		return row[b[p]]
-	}
-
-	// @todo find node closer numerically
-
-	return ""
+	return row.Closest(target)
 }
 
 // Insert adds a node to the RoutingTable.
 func (r RoutingTable) Insert(self, id peer.ID) RoutingTable {
+	nr := r
 	p := commonPrefix(self, id)
 	if p > len(r) {
-		r = r.grow(p)
+		nr = r.grow(p)
 	}
 
-	row := r[p]
+	nr[p] = nr[p].Insert(id)
 
-	byteid, _ := id.MarshalBinary()
-
-	i := sort.Search(len(row), func(i int) bool {
-		cmp, _ := (row)[i].MarshalBinary()
-		return bytes.Compare(byteid, cmp) >= 0
-	})
-
-	if i < len(row) && row[i] == id || i >= Length {
-		return r
-	}
-
-	nr := append(row, "")
-	copy(nr[i+1:], nr[i:])
-	nr[i] = id
-
-	r[p] = nr
-
-	return r
+	return nr
 }
 
 func (r RoutingTable) grow(n int) RoutingTable {
 	if n > len(r) {
 		appends := len(r) - n
 		for i := 0; i <= appends; i++ {
-			r = append(r, make([]peer.ID, 0))
+			r = append(r, make(Set, 0))
 		}
 	}
 
