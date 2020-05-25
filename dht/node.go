@@ -137,7 +137,7 @@ func (n *Node) route(to peer.ID) peer.AddrInfo {
 	}
 
 	// @todo this is flimsy but will fix later
-	id := n.RoutingTable.Route(n.Host.ID(), to)
+	id := n.RoutingTable.Route(n.ID(), to)
 	if id != "" {
 		return n.Host.Peerstore().PeerInfo(id)
 	}
@@ -189,4 +189,12 @@ func (n *Node) createWriter(target peer.ID) chan pb.Message {
 	c := make(chan pb.Message) // @todo buffer size
 	n.writers[target] = c
 	return c
+}
+
+func (n *Node) addPeer(id peer.ID) {
+	n.Lock()
+	defer n.Unlock()
+
+	n.LeafSet.Insert(id)
+	n.RoutingTable = n.RoutingTable.Insert(n.ID(), id)
 }
