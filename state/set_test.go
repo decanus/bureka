@@ -14,11 +14,11 @@ import (
 func TestSet_Insert(t *testing.T) {
 	s := make(state.Set, 0)
 
-	addr := Addr()
+	id := ID()
 
-	s = s.Insert(&addr)
+	s = s.Insert(id)
 
-	if s.IndexOf(addr.ID) != 0 {
+	if s.IndexOf(id) != 0 {
 		t.Error("failed to insert id")
 	}
 }
@@ -26,19 +26,19 @@ func TestSet_Insert(t *testing.T) {
 func TestSet_Remove(t *testing.T) {
 	s := make(state.Set, 0)
 
-	addr := Addr()
+	id := ID()
 
-	s = s.Insert(&addr)
-	if s.IndexOf(addr.ID) != 0 {
+	s = s.Insert(id)
+	if s.IndexOf(id) != 0 {
 		t.Error("failed to insert id")
 	}
 
-	s, ok := s.Remove(addr.ID)
+	s, ok := s.Remove(id)
 	if !ok {
 		t.Error("failed to remove")
 	}
 
-	if s.IndexOf(addr.ID) != -1 {
+	if s.IndexOf(id) != -1 {
 		t.Error("failed to remove id")
 	}
 }
@@ -46,16 +46,16 @@ func TestSet_Remove(t *testing.T) {
 func TestSet_Closest(t *testing.T) {
 	s := make(state.Set, 0)
 
-	first := Addr()
+	first := ID()
 
-	search := UpperID(first.ID)
+	search := UpperID(first)
 
 	second := UpperID(search)
 
-	s = s.Insert(&first)
-	s = s.Insert(&peer.AddrInfo{ID: second})
+	s = s.Insert(first)
+	s = s.Insert(second)
 
-	if first.ID != s.Closest(search).ID {
+	if first != s.Closest(search) {
 		t.Error("unexpected closest value")
 	}
 }
@@ -67,9 +67,9 @@ func TestSet_Insert_IsProperlySorted(t *testing.T) {
 	second := UpperID(first)
 	last := UpperID(second)
 
-	s = s.Insert(&peer.AddrInfo{ID: first})
-	s = s.Insert(&peer.AddrInfo{ID: second})
-	s = s.Insert(&peer.AddrInfo{ID: last})
+	s = s.Insert(first)
+	s = s.Insert(second)
+	s = s.Insert(last)
 
 	if s.IndexOf(first) != 2 {
 		t.Fatal("incorrect sorting")
@@ -91,9 +91,9 @@ func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
 	second := LowerID(first)
 	last := LowerID(second)
 
-	s = s.Insert(&peer.AddrInfo{ID: first})
-	s = s.Insert(&peer.AddrInfo{ID: second})
-	s = s.Insert(&peer.AddrInfo{ID: last})
+	s = s.Insert(first)
+	s = s.Insert(second)
+	s = s.Insert(last)
 
 	if s.IndexOf(first) != 0 {
 		t.Fatal("incorrect sorting")
@@ -141,12 +141,6 @@ func LowerID(id peer.ID) peer.ID {
 	p, _ := peer.IDFromBytes(b)
 
 	return p
-}
-
-func Addr() peer.AddrInfo {
-	return peer.AddrInfo{
-		ID: ID(),
-	}
 }
 
 func ID() peer.ID {
