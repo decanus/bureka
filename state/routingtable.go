@@ -28,6 +28,11 @@ func (r RoutingTable) Route(self, target peer.ID) peer.ID {
 	return ""
 }
 
+func (r RoutingTable) Insert(self, id peer.ID) RoutingTable {
+	// @todo
+	return r
+}
+
 func commonPrefix(self, target peer.ID) int {
 	s, _ := self.MarshalBinary()
 	t, _ := target.MarshalBinary()
