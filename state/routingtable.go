@@ -16,9 +16,7 @@ func (r RoutingTable) Route(self, target peer.ID) peer.ID {
 		return ""
 	}
 
-	row := r[p]
-
-	return row.Closest(target)
+	return r[p].Closest(target)
 }
 
 // Insert adds a node to the RoutingTable.
