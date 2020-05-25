@@ -21,8 +21,8 @@ func NewLeafSet(key peer.ID) LeafSet {
 }
 
 // Insert inserts a peer in the LeafSet.
-func (l *LeafSet) Insert(peer *peer.AddrInfo) {
-	byteid, _ := peer.ID.MarshalBinary()
+func (l *LeafSet) Insert(peer peer.ID) {
+	byteid, _ := peer.MarshalBinary()
 	k, _ := l.key.MarshalBinary()
 	if bytes.Compare(byteid, k) < 0 {
 		l.smaller = l.smaller.Insert(peer)
@@ -48,7 +48,7 @@ func (l *LeafSet) Remove(id peer.ID) bool {
 }
 
 // Closest returns the closest PeerInfo.
-func (l LeafSet) Closest(id peer.ID) *peer.AddrInfo {
+func (l LeafSet) Closest(id peer.ID) peer.ID {
 	byteid, _ := id.MarshalBinary()
 	k, _ := l.key.MarshalBinary()
 	if bytes.Compare(byteid, k) < 0 {
@@ -64,7 +64,7 @@ func (l LeafSet) Min() peer.ID {
 		return ""
 	}
 
-	return l.smaller[len(l.smaller)-1].ID
+	return l.smaller[len(l.smaller)-1]
 }
 
 // Max returns the farthest key to the larger side.
@@ -73,7 +73,7 @@ func (l LeafSet) Max() peer.ID {
 		return ""
 	}
 
-	return l.larger[0].ID
+	return l.larger[0]
 }
 
 // IsInRange returns whether an id is between
