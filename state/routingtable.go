@@ -33,14 +33,15 @@ func (r RoutingTable) Insert(self, id peer.ID) RoutingTable {
 }
 
 func (r RoutingTable) grow(n int) RoutingTable {
+	nr := r
 	if n > len(r) {
 		appends := len(r) - n
 		for i := 0; i <= appends; i++ {
-			r = append(r, make(Set, 0))
+			nr = append(r, make(Set, 0))
 		}
 	}
 
-	return r
+	return nr
 }
 
 func commonPrefix(self, target peer.ID) int {
