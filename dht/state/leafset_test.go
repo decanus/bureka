@@ -3,7 +3,7 @@ package state_test
 import (
 	"testing"
 
-	"github.com/decanus/bureka/state"
+	"github.com/decanus/bureka/dht/state"
 )
 
 func TestLeafSet_Insert(t *testing.T) {
