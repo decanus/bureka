@@ -4,9 +4,9 @@ type RoutingTable []Set
 
 // Route returns the node closest to the target.
 func (r RoutingTable) Route(self, target Peer) Peer {
-	p := commonPrefix(self, target)
+	p := row(self, target)
 
-	if p >= len(r) {
+	if p > len(r) {
 		// @todo error handling
 		return nil
 	}
@@ -16,8 +16,8 @@ func (r RoutingTable) Route(self, target Peer) Peer {
 
 func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 	nr := r
-	p := commonPrefix(self, id)
-	if p >= len(r) {
+	p := row(self, id)
+	if p > len(r) {
 		nr = r.grow(p)
 	}
 
@@ -28,24 +28,21 @@ func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 
 func (r RoutingTable) grow(n int) RoutingTable {
 	nr := r
-	if n >= len(r) {
-		appends := len(r) - n
-		for i := 0; i <= appends; i++ {
-			nr = append(r, make(Set, 0))
-		}
+	for len(nr) <= n {
+		nr = append(nr, make(Set, 0))
 	}
 
 	return nr
 }
 
-func commonPrefix(self, target Peer) int {
+func row(self, target Peer) int {
 	for i, v := range self {
 		if v == target[i] {
 			continue
 		}
 
-		return i
+		return i - 1
 	}
 
-	return len(self)
+	return len(self) - 1
 }
