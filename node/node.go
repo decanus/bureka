@@ -18,16 +18,21 @@ var logger = logging.Logger("dht")
 type Node struct {
 	ctx context.Context
 
-	dht    dht.DHT
+	dht    *dht.DHT
 	host   host.Host
-	writer Writer
+	writer *Writer
 }
 
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
-func New(d dht.DHT, h host.Host, w *Writer) (*Node, error) {
-	return nil, nil
+func New(ctx context.Context, d *dht.DHT, h host.Host, w *Writer) (*Node, error) {
+	return &Node{
+		ctx: ctx,
+		dht: d,
+		host: h,
+		writer: w,
+	}, nil
 }
 
 func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
