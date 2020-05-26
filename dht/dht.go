@@ -12,7 +12,7 @@ import (
 // Transport is responsible for sending messages.
 // This represents a call back function that can be implemented on network IO.
 type Transport interface {
-	Send(ctx context.Context, target state.Peer, msg pb.Message) error
+	Send(ctx context.Context, target state.Peer, msg *pb.Message) error
 }
 
 // ApplicationID represents a unique identifier for the application.

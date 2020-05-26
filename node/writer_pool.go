@@ -43,7 +43,7 @@ func (w *Writer) AddStream(id state.Peer, stream network.Stream) {
 	w.streams[string(id)] = stream
 }
 
-func (w *Writer) Send(ctx context.Context, target state.Peer, msg pb.Message) error {
+func (w *Writer) Send(ctx context.Context, target state.Peer, msg *pb.Message) error {
 	out, ok := w.streams[string(target)]
 	if !ok {
 		return fmt.Errorf("peer %s not found", string(target))
@@ -51,7 +51,7 @@ func (w *Writer) Send(ctx context.Context, target state.Peer, msg pb.Message) er
 
 	bw := w.pool.Get().(*bufferedDelimitedWriter)
 	bw.Reset(out)
-	err := bw.WriteMsg(&msg)
+	err := bw.WriteMsg(msg)
 	if err == nil {
 		err = bw.Flush()
 	}
