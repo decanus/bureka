@@ -26,7 +26,7 @@ type Node struct {
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
-func New() (*Node, error) {
+func New(d dht.DHT, h host.Host, w *Writer) (*Node, error) {
 	return nil, nil
 }
 
