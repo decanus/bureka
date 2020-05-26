@@ -2,7 +2,6 @@ package state_test
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 
 	"github.com/decanus/bureka/state"
@@ -121,7 +120,7 @@ func TestLeafSet_IsInRange_OutOfRange_Lower(t *testing.T) {
 	lower := LowerID(id)
 
 	ls := state.NewLeafSet(id)
-	ls.Insert(id)
+	ls.Insert(lower)
 	ls.Insert(UpperID(id))
 
 	if ls.IsInRange(LowerID(lower)) {
@@ -145,8 +144,6 @@ func TestLeafSet_IsInRange_OnlyMin(t *testing.T) {
 
 	ls := state.NewLeafSet(id)
 	ls.Insert(LowerID(id))
-
-	fmt.Println(id)
 
 	if !ls.IsInRange(id) {
 		t.Error("id not in rage as expected")

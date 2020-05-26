@@ -1,6 +1,7 @@
 package dht
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"sync"
@@ -25,8 +26,8 @@ type ApplicationID string
 // Application represents a pastry application
 type Application interface {
 	Deliver(msg pb.Message)
-	Forward(msg pb.Message, target peer.ID) bool
-	Heartbeat(id peer.ID)
+	Forward(msg pb.Message, target state.Peer) bool
+	Heartbeat(id state.Peer)
 }
 
 // Node is a pastry node.
@@ -43,16 +44,18 @@ type Node struct {
 
 	applications map[ApplicationID]Application
 
-	writers map[peer.ID]chan<- pb.Message
+	writers map[string]chan<- pb.Message
 }
 
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
 func New(ctx context.Context, host host.Host) *Node {
+	id, _ := host.ID().MarshalBinary()
+
 	n := &Node{
 		ctx:             ctx,
-		LeafSet:         state.NewLeafSet(host.ID()),
+		LeafSet:         state.NewLeafSet(id),
 		NeighborhoodSet: make(state.Set, 0),
 		applications:    make(map[ApplicationID]Application),
 		Host:            host,
@@ -81,25 +84,25 @@ func (n *Node) RemoveApplication(aid ApplicationID) {
 
 // Send sends a message to the target or the next closest peer.
 func (n *Node) Send(ctx context.Context, msg pb.Message) error {
-	key := peer.ID(msg.Key)
+	key := msg.Key
 
-	if key == n.Host.ID() {
+	if bytes.Equal(key, n.ID()) {
 		n.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
 		return nil
 	}
 
 	target := n.route(key)
-	if target.ID == "" {
+	if target == nil {
 		// no target to be found, delivering to self
 		return nil
 	}
 
-	forward := n.forward(msg, target.ID)
+	forward := n.forward(msg, target)
 	if !forward {
 		return nil
 	}
 
-	err := n.send(msg, target.ID)
+	err := n.send(msg, target)
 	if err != nil {
 		return err
 	}
@@ -108,8 +111,9 @@ func (n *Node) Send(ctx context.Context, msg pb.Message) error {
 }
 
 // ID returns a nodes ID, mainly for testing purposes.
-func (n *Node) ID() peer.ID {
-	return n.Host.ID()
+func (n *Node) ID() state.Peer {
+	id, _ := n.Host.ID().MarshalBinary()
+	return id
 }
 
 func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
@@ -119,30 +123,37 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 
 	logger.Debug("finding peer", "peer", id)
 
-	local := n.route(id)
-	if local.ID != "" {
-		return local, nil
+	b, _ := id.MarshalBinary()
+
+	local := n.route(b)
+	if local != nil {
+		id, err := peer.IDFromBytes(local)
+		if err != nil {
+			return peer.AddrInfo{}, err
+		}
+
+		return n.Host.Peerstore().PeerInfo(id), nil
 	}
 
 	return peer.AddrInfo{}, nil
 }
 
 // @todo probably want to return error if not found
-func (n *Node) route(to peer.ID) peer.AddrInfo {
+func (n *Node) route(to state.Peer) state.Peer {
 	if n.LeafSet.IsInRange(to) {
 		id := n.LeafSet.Closest(to)
-		if id != "" {
-			return n.Host.Peerstore().PeerInfo(id)
+		if id != nil {
+			return id
 		}
 	}
 
 	// @todo this is flimsy but will fix later
 	id := n.RoutingTable.Route(n.ID(), to)
-	if id != "" {
-		return n.Host.Peerstore().PeerInfo(id)
+	if id != nil {
+		return id
 	}
 
-	return peer.AddrInfo{}
+	return nil
 }
 
 // deliver sends the message to all connected applications.
@@ -156,7 +167,7 @@ func (n *Node) deliver(msg pb.Message) {
 }
 
 // forward asks all applications whether a message should be forwarded to a peer or not.
-func (n *Node) forward(msg pb.Message, target peer.ID) bool {
+func (n *Node) forward(msg pb.Message, target state.Peer) bool {
 	n.RLock()
 	defer n.RUnlock()
 
@@ -172,8 +183,8 @@ func (n *Node) forward(msg pb.Message, target peer.ID) bool {
 	return forward
 }
 
-func (n *Node) send(msg pb.Message, target peer.ID) error {
-	out, ok := n.writers[target]
+func (n *Node) send(msg pb.Message, target state.Peer) error {
+	out, ok := n.writers[string(target)]
 	if !ok {
 		return fmt.Errorf("peer %s not found", string(target))
 	}
@@ -187,11 +198,11 @@ func (n *Node) createWriter(target peer.ID) chan pb.Message {
 	defer n.Unlock()
 
 	c := make(chan pb.Message) // @todo buffer size
-	n.writers[target] = c
+	n.writers[string(target)] = c
 	return c
 }
 
-func (n *Node) addPeer(id peer.ID) {
+func (n *Node) addPeer(id state.Peer) {
 	n.Lock()
 	defer n.Unlock()
 
