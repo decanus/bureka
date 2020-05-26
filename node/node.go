@@ -18,8 +18,8 @@ var logger = logging.Logger("dht")
 type Node struct {
 	ctx context.Context
 
-	dht     dht.DHT
-	host    host.Host
+	dht    dht.DHT
+	host   host.Host
 	writer Writer
 }
 
@@ -54,4 +54,3 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 func (n *Node) Send(ctx context.Context, msg pb.Message) error {
 	return n.dht.Send(ctx, msg)
 }
-
