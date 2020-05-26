@@ -17,7 +17,7 @@ func (r RoutingTable) Route(self, target Peer) Peer {
 func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 	nr := r
 	p := commonPrefix(self, id)
-	if p > len(r) {
+	if p >= len(r) {
 		nr = r.grow(p)
 	}
 
@@ -28,7 +28,7 @@ func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 
 func (r RoutingTable) grow(n int) RoutingTable {
 	nr := r
-	if n > len(r) {
+	if n >= len(r) {
 		appends := len(r) - n
 		for i := 0; i <= appends; i++ {
 			nr = append(r, make(Set, 0))
