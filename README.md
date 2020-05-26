@@ -2,7 +2,7 @@
 
 **:warning: WORK IN PROGRESS! :warning:**
 
-A libp2p compatible implementation of the [Pastry DHT](http://rowstron.azurewebsites.net/PAST/pastry.pdf) in go.
+An implementation of the [Pastry DHT](http://rowstron.azurewebsites.net/PAST/pastry.pdf) in go. This package includes a libp2p compatible node making it easy to use in a libp2p network.
 
 Usage with libp2p:
 
