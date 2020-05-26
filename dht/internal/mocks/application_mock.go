@@ -5,8 +5,8 @@
 package internal
 
 import (
+	state "github.com/decanus/bureka/dht/state"
 	pb "github.com/decanus/bureka/pb"
-	state "github.com/decanus/bureka/state"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )

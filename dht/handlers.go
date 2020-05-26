@@ -3,8 +3,8 @@ package dht
 import (
 	"context"
 
+	"github.com/decanus/bureka/dht/state"
 	"github.com/decanus/bureka/pb"
-	"github.com/decanus/bureka/state"
 )
 
 type HandlerFunc func(ctx context.Context, from state.Peer, message *pb.Message) *pb.Message
