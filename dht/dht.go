@@ -122,8 +122,8 @@ func (d *DHT) AddPeer(id state.Peer) {
 	d.Lock()
 	defer d.Unlock()
 
-	d.NeighborhoodSet.Insert(id)
-	d.RoutingTable.Insert(d.ID, id)
+	d.NeighborhoodSet = d.NeighborhoodSet.Insert(id)
+	d.RoutingTable = d.RoutingTable.Insert(d.ID, id)
 	d.LeafSet.Insert(id)
 }
 
