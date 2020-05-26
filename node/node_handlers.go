@@ -3,13 +3,12 @@ package node
 import (
 	"context"
 
-	"github.com/decanus/bureka/dht/state"
 	"github.com/decanus/bureka/pb"
 )
 
-type HandlerFunc func(ctx context.Context, from state.Peer, message *pb.Message) *pb.Message
+type handlerFunc func(ctx context.Context, message *pb.Message) *pb.Message
 
-func (n *Node) handler(t pb.Message_Type) HandlerFunc {
+func (n *Node) handler(t pb.Message_Type) handlerFunc {
 	switch t {
 	case pb.Message_MESSAGE:
 		return n.onMessage
@@ -32,7 +31,7 @@ func (n *Node) handler(t pb.Message_Type) HandlerFunc {
 	return nil
 }
 
-func (n *Node) onMessage(ctx context.Context, _ state.Peer, message *pb.Message) *pb.Message {
+func (n *Node) onMessage(ctx context.Context, message *pb.Message) *pb.Message {
 	err := n.Send(ctx, message)
 	if err != nil {
 		// @todo
@@ -41,36 +40,33 @@ func (n *Node) onMessage(ctx context.Context, _ state.Peer, message *pb.Message)
 	return nil
 }
 
-func (n *Node) onNodeJoin(ctx context.Context, from state.Peer, message *pb.Message) *pb.Message {
+func (n *Node) onNodeJoin(ctx context.Context, message *pb.Message) *pb.Message {
 	// @TODO THIS IS QUESTIONABLE CAUSE IT MAY BE HANDLED THROUGH ANOTHER PATH ALREADY
 	return nil
 }
 
-func (n *Node) onNodeAnnounce(ctx context.Context, from state.Peer, message *pb.Message) *pb.Message {
+func (n *Node) onNodeAnnounce(ctx context.Context, message *pb.Message) *pb.Message {
 	return nil
 }
 
-func (n *Node) onNodeExit(ctx context.Context, from state.Peer, message *pb.Message) *pb.Message {
+func (n *Node) onNodeExit(ctx context.Context, message *pb.Message) *pb.Message {
 	n.dht.RemovePeer(message.Sender)
 	return nil
 }
 
-func (n *Node) onHeartbeat(_ context.Context, _ state.Peer, message *pb.Message) *pb.Message {
-	//for _, app := range n.applications {
-	//	app.Heartbeat(peer.ID(message.Sender))
-	//}
-
+func (n *Node) onHeartbeat(_ context.Context, message *pb.Message) *pb.Message {
+	n.dht.Heartbeat(message.Sender)
 	return nil
 }
 
-func (n *Node) onRepairRequest(ctx context.Context, from state.Peer, message *pb.Message) *pb.Message {
+func (n *Node) onRepairRequest(ctx context.Context, message *pb.Message) *pb.Message {
 	return nil
 }
 
-func (n *Node) onStateRequest(ctx context.Context, from state.Peer, message *pb.Message) *pb.Message {
+func (n *Node) onStateRequest(ctx context.Context, message *pb.Message) *pb.Message {
 	return nil
 }
 
-func (n *Node) onStateResponse(ctx context.Context, from state.Peer, message *pb.Message) *pb.Message {
+func (n *Node) onStateResponse(ctx context.Context, message *pb.Message) *pb.Message {
 	return nil
 }

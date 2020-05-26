@@ -139,6 +139,15 @@ func (d *DHT) RemovePeer(id state.Peer) {
 	d.LeafSet.Remove(id)
 }
 
+func (d *DHT) Heartbeat(id state.Peer) {
+	d.RLock()
+	defer d.RUnlock()
+
+	for _, app := range d.applications {
+		app.Heartbeat(id)
+	}
+}
+
 // deliver sends the message to all connected applications.
 func (d *DHT) deliver(msg *pb.Message) {
 	d.RLock()
