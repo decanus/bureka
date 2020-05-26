@@ -17,9 +17,7 @@ func (r RoutingTable) Route(self, target Peer) Peer {
 func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 	nr := r
 	p := row(self, id)
-	if p > len(r) {
-		nr = r.grow(p)
-	}
+	nr = r.grow(p + 1)
 
 	nr[p] = nr[p].Insert(id)
 
@@ -28,7 +26,7 @@ func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 
 func (r RoutingTable) grow(n int) RoutingTable {
 	nr := r
-	for len(nr) <= n {
+	for len(nr) < n {
 		nr = append(nr, make(Set, 0))
 	}
 
@@ -41,8 +39,8 @@ func row(self, target Peer) int {
 			continue
 		}
 
-		return i - 1
+		return i
 	}
 
-	return len(self) - 1
+	return len(self)
 }

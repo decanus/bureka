@@ -15,7 +15,7 @@ func TestRoutingTable_Insert(t *testing.T) {
 
 	r = r.Insert(id, insert)
 
-	if !bytes.Equal(r[1][0], insert) {
+	if !bytes.Equal(r[2][0], insert) {
 		t.Error("inserted in unexpected row")
 	}
 }
