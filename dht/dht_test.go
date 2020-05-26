@@ -22,7 +22,7 @@ func TestNode_Send_ToSelf(t *testing.T) {
 	application := internal.NewMockApplication(ctrl)
 	n.AddApplication("app", application)
 
-	msg := pb.Message{Type: pb.Message_MESSAGE, Key: n.ID}
+	msg := &pb.Message{Type: pb.Message_MESSAGE, Key: n.ID}
 
 	application.EXPECT().Deliver(gomock.Eq(msg)).Times(1)
 
@@ -46,7 +46,7 @@ func TestNode_Send_WhenPeerInLeafSet(t *testing.T) {
 	target[0] = 3
 	n.AddPeer(target)
 
-	msg := pb.Message{Type: pb.Message_MESSAGE, Key: target}
+	msg := &pb.Message{Type: pb.Message_MESSAGE, Key: target}
 
 	application.EXPECT().Forward(gomock.Eq(msg), gomock.Eq(target)).Times(1).Return(true)
 
@@ -73,7 +73,7 @@ func TestNode_Send_DoesNothingOnFalseForward(t *testing.T) {
 	target[0] = 3
 	n.AddPeer(target)
 
-	msg := pb.Message{Type: pb.Message_MESSAGE, Key: target}
+	msg := &pb.Message{Type: pb.Message_MESSAGE, Key: target}
 
 	application.EXPECT().Forward(gomock.Eq(msg), gomock.Eq(target)).Times(1).Return(false)
 

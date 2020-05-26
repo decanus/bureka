@@ -56,6 +56,6 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 	return n.host.Peerstore().PeerInfo(id), nil
 }
 
-func (n *Node) Send(ctx context.Context, msg pb.Message) error {
+func (n *Node) Send(ctx context.Context, msg *pb.Message) error {
 	return n.dht.Send(ctx, msg)
 }

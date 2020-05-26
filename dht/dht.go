@@ -20,8 +20,8 @@ type ApplicationID string
 
 // Application represents a pastry application
 type Application interface {
-	Deliver(msg pb.Message)
-	Forward(msg pb.Message, target state.Peer) bool
+	Deliver(msg *pb.Message)
+	Forward(msg *pb.Message, target state.Peer) bool
 	Heartbeat(id state.Peer)
 }
 
@@ -69,7 +69,7 @@ func (d *DHT) RemoveApplication(aid ApplicationID) {
 }
 
 // Send a message to the target peer or closest available peer.
-func (d *DHT) Send(ctx context.Context, msg pb.Message) error {
+func (d *DHT) Send(ctx context.Context, msg *pb.Message) error {
 	key := msg.Key
 
 	if bytes.Equal(key, d.ID) {
@@ -128,7 +128,7 @@ func (d *DHT) AddPeer(id state.Peer) {
 }
 
 // deliver sends the message to all connected applications.
-func (d *DHT) deliver(msg pb.Message) {
+func (d *DHT) deliver(msg *pb.Message) {
 	d.RLock()
 	defer d.RUnlock()
 
@@ -138,7 +138,7 @@ func (d *DHT) deliver(msg pb.Message) {
 }
 
 // forward asks all applications whether a message should be forwarded to a peer or not.
-func (d *DHT) forward(msg pb.Message, target state.Peer) bool {
+func (d *DHT) forward(msg *pb.Message, target state.Peer) bool {
 	d.RLock()
 	defer d.RUnlock()
 

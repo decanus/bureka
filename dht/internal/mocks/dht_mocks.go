@@ -36,7 +36,7 @@ func (m *MockTransport) EXPECT() *MockTransportMockRecorder {
 }
 
 // Send mocks base method
-func (m *MockTransport) Send(ctx context.Context, target state.Peer, msg pb.Message) error {
+func (m *MockTransport) Send(ctx context.Context, target state.Peer, msg *pb.Message) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Send", ctx, target, msg)
 	ret0, _ := ret[0].(error)
@@ -73,7 +73,7 @@ func (m *MockApplication) EXPECT() *MockApplicationMockRecorder {
 }
 
 // Deliver mocks base method
-func (m *MockApplication) Deliver(msg pb.Message) {
+func (m *MockApplication) Deliver(msg *pb.Message) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Deliver", msg)
 }
@@ -85,7 +85,7 @@ func (mr *MockApplicationMockRecorder) Deliver(msg interface{}) *gomock.Call {
 }
 
 // Forward mocks base method
-func (m *MockApplication) Forward(msg pb.Message, target state.Peer) bool {
+func (m *MockApplication) Forward(msg *pb.Message, target state.Peer) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Forward", msg, target)
 	ret0, _ := ret[0].(bool)
