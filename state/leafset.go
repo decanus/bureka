@@ -74,11 +74,11 @@ func (l LeafSet) IsInRange(id Peer) bool {
 	min := l.Min()
 	max := l.Max()
 
-	if min != nil && bytes.Compare(id, min) < 1 {
+	if min != nil && bytes.Compare(id, min) == -1 {
 		return false
 	}
 
-	if max != nil && bytes.Compare(id, max) > 0 {
+	if max != nil && bytes.Compare(id, max) == 1 {
 		return false
 	}
 
