@@ -1,35 +1,39 @@
 package state
 
-type RoutingTable [][]Peer
+type RoutingTable []Set
 
 // Route returns the node closest to the target.
 func (r RoutingTable) Route(self, target Peer) Peer {
-	p := commonPrefix(self, target)
+	p := row(self, target)
 
-	if p >= len(r) {
+	if p > len(r) {
 		// @todo error handling
 		return nil
 	}
 
-	row := r[p]
-
-	// @todo this may be wrong
-	// see: https://github.com/secondbit/wendy/blob/e4601da9fbf96fd1f6e81a18e58db10b57bce3ff/nodeid.go#L214
-	if row[target[p]] != nil {
-		return row[target[p]]
-	}
-
-	// @todo find node closer numerically
-
-	return nil
+	return r[p].Closest(target)
 }
 
 func (r RoutingTable) Insert(self, id Peer) RoutingTable {
-	// @todo
-	return r
+	nr := r
+	p := row(self, id)
+	nr = r.grow(p + 1)
+
+	nr[p] = nr[p].Insert(id)
+
+	return nr
 }
 
-func commonPrefix(self, target Peer) int {
+func (r RoutingTable) grow(n int) RoutingTable {
+	nr := r
+	for len(nr) < n {
+		nr = append(nr, make(Set, 0))
+	}
+
+	return nr
+}
+
+func row(self, target Peer) int {
 	for i, v := range self {
 		if v == target[i] {
 			continue
