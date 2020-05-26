@@ -43,6 +43,10 @@ func (w *Writer) AddStream(id state.Peer, stream network.Stream) {
 	w.streams[string(id)] = stream
 }
 
+func (w *Writer) RemoveStream(id state.Peer) {
+	delete(w.streams, string(id))
+}
+
 func (w *Writer) Send(ctx context.Context, target state.Peer, msg *pb.Message) error {
 	out, ok := w.streams[string(target)]
 	if !ok {

@@ -3,6 +3,7 @@ package node
 import (
 	"github.com/libp2p/go-eventbus"
 	"github.com/libp2p/go-libp2p-core/event"
+	"github.com/libp2p/go-libp2p-core/peer"
 )
 
 func (n *Node) subscribe() (event.Subscription, error) {
@@ -31,4 +32,9 @@ func (n *Node) subscribe() (event.Subscription, error) {
 
 func (n *Node) poll(s event.Subscription) {
 	defer s.Close()
+}
+
+func (n *Node) handlePeerChangeEvent(p peer.ID) {
+	id, _ := p.MarshalBinary()
+	n.dht.AddPeer(id)
 }
