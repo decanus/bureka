@@ -153,6 +153,5 @@ func ID() []byte {
 		panic(err)
 	}
 
-	b, _ := id.MarshalBinary()
-	return b
+	return []byte(id)
 }
