@@ -1,7 +1,5 @@
 package state
 
-import "github.com/libp2p/go-libp2p-core/peer"
-
 type RoutingTable [][]Peer
 
 // Route returns the node closest to the target.
@@ -26,7 +24,7 @@ func (r RoutingTable) Route(self, target Peer) Peer {
 	return nil
 }
 
-func (r RoutingTable) Insert(self, id peer.ID) RoutingTable {
+func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 	// @todo
 	return r
 }

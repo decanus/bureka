@@ -25,7 +25,7 @@ func (n *Node) streamHandler(s network.Stream) {
 
 func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
 	r := msgio.NewVarintReaderSize(s, network.MessageSizeMax)
-	peer := s.Conn().RemotePeer()
+	peer, _ := s.Conn().RemotePeer().MarshalBinary()
 
 	for {
 		msg, done, err := n.latestMessage(r)

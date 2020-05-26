@@ -7,6 +7,7 @@ import (
 
 var Length int = 10
 
+// Peer type represents a peer id.
 type Peer []byte
 
 // Set represents a Set of nodes
