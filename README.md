@@ -11,6 +11,6 @@ func main() {
     writer := node.NewWriter()
     d := dht.New(id, writer)
     
-    n := node.New(d, host.Host, writer)
+    n := node.New(ctx.Background(), d, host.Host, writer)
 }
 ```
