@@ -20,6 +20,23 @@ func TestRoutingTable_Insert(t *testing.T) {
 	}
 }
 
+func TestRoutingTable_Remove(t *testing.T) {
+	id := []byte{1, 2, 3, 4}
+	insert := []byte{1, 2, 2, 3}
+
+	r := make(state.RoutingTable, 0)
+
+	r = r.Insert(id, insert)
+	if !bytes.Equal(r[2][0], insert) {
+		t.Error("not inserted")
+	}
+
+	r = r.Remove(id, insert)
+	if len(r[2]) != 0 {
+		t.Error("not removed")
+	}
+}
+
 func TestRoutingTable_Route(t *testing.T) {
 	id := []byte{1, 2, 3, 4}
 	insert := []byte{1, 2, 2, 3}

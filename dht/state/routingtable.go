@@ -33,6 +33,18 @@ func (r RoutingTable) grow(n int) RoutingTable {
 	return nr
 }
 
+func (r RoutingTable) Remove(self, id Peer) RoutingTable {
+	nr := r
+	p := row(self, id)
+
+	newrow, ok := nr[p].Remove(id)
+	if ok {
+		nr[p] = newrow
+	}
+
+	return nr
+}
+
 func row(self, target Peer) int {
 	for i, v := range self {
 		if v == target[i] {
