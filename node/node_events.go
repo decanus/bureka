@@ -1,4 +1,4 @@
-package dht
+package node
 
 import (
 	"github.com/libp2p/go-eventbus"
@@ -21,7 +21,7 @@ func (n *Node) subscribe() (event.Subscription, error) {
 		new(event.EvtLocalAddressesUpdated),
 	}
 
-	s, err := n.Host.EventBus().Subscribe(evts, bufSize)
+	s, err := n.host.EventBus().Subscribe(evts, bufSize)
 	if err != nil {
 		return nil, err
 	}
