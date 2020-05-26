@@ -1,6 +1,7 @@
 package state_test
 
 import (
+	"bytes"
 	"crypto/elliptic"
 	"crypto/rand"
 	"testing"
@@ -8,17 +9,17 @@ import (
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/peer"
 
-	"github.com/decanus/bureka/state"
+	"github.com/decanus/bureka/dht/state"
 )
 
 func TestSet_Insert(t *testing.T) {
 	s := make(state.Set, 0)
 
-	addr := Addr()
+	id := ID()
 
-	s = s.Insert(&addr)
+	s = s.Insert(id)
 
-	if s.IndexOf(addr.ID) != 0 {
+	if s.IndexOf(id) != 0 {
 		t.Error("failed to insert id")
 	}
 }
@@ -26,19 +27,19 @@ func TestSet_Insert(t *testing.T) {
 func TestSet_Remove(t *testing.T) {
 	s := make(state.Set, 0)
 
-	addr := Addr()
+	id := ID()
 
-	s = s.Insert(&addr)
-	if s.IndexOf(addr.ID) != 0 {
+	s = s.Insert(id)
+	if s.IndexOf(id) != 0 {
 		t.Error("failed to insert id")
 	}
 
-	s, ok := s.Remove(addr.ID)
+	s, ok := s.Remove(id)
 	if !ok {
 		t.Error("failed to remove")
 	}
 
-	if s.IndexOf(addr.ID) != -1 {
+	if s.IndexOf(id) != -1 {
 		t.Error("failed to remove id")
 	}
 }
@@ -46,16 +47,16 @@ func TestSet_Remove(t *testing.T) {
 func TestSet_Closest(t *testing.T) {
 	s := make(state.Set, 0)
 
-	first := Addr()
+	first := ID()
 
-	search := UpperID(first.ID)
+	search := UpperID(first)
 
 	second := UpperID(search)
 
-	s = s.Insert(&first)
-	s = s.Insert(&peer.AddrInfo{ID: second})
+	s = s.Insert(first)
+	s = s.Insert(second)
 
-	if first.ID != s.Closest(search).ID {
+	if !bytes.Equal(first, s.Closest(search)) {
 		t.Error("unexpected closest value")
 	}
 }
@@ -67,9 +68,9 @@ func TestSet_Insert_IsProperlySorted(t *testing.T) {
 	second := UpperID(first)
 	last := UpperID(second)
 
-	s = s.Insert(&peer.AddrInfo{ID: first})
-	s = s.Insert(&peer.AddrInfo{ID: second})
-	s = s.Insert(&peer.AddrInfo{ID: last})
+	s = s.Insert(first)
+	s = s.Insert(second)
+	s = s.Insert(last)
 
 	if s.IndexOf(first) != 2 {
 		t.Fatal("incorrect sorting")
@@ -91,9 +92,9 @@ func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
 	second := LowerID(first)
 	last := LowerID(second)
 
-	s = s.Insert(&peer.AddrInfo{ID: first})
-	s = s.Insert(&peer.AddrInfo{ID: second})
-	s = s.Insert(&peer.AddrInfo{ID: last})
+	s = s.Insert(first)
+	s = s.Insert(second)
+	s = s.Insert(last)
 
 	if s.IndexOf(first) != 0 {
 		t.Fatal("incorrect sorting")
@@ -108,48 +109,40 @@ func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
 	}
 }
 
-func UpperID(id peer.ID) peer.ID {
-	b, _ := id.MarshalBinary()
+func UpperID(id state.Peer) state.Peer {
+	n := make(state.Peer, len(id))
+	copy(n[:], id[:])
 
 	i := 2
 
-	for ; i <= len(b); i++ {
-		if b[i] < 255 {
+	for ; i <= len(id); i++ {
+		if id[i] < 255 {
 			break
 		}
 	}
 
-	b[i] += 1
-
-	p, _ := peer.IDFromBytes(b)
-
-	return p
+	n[i] += 1
+	return n
 }
 
-func LowerID(id peer.ID) peer.ID {
-	b, _ := id.MarshalBinary()
+func LowerID(id state.Peer) state.Peer {
+	n := make(state.Peer, len(id))
+	copy(n[:], id[:])
+
 	i := 2
 
-	for ; i <= len(b); i++ {
-		if b[i] > 0 {
+	for ; i <= len(id); i++ {
+		if id[i] > 0 {
 			break
 		}
 	}
 
-	b[i] -= 1
+	n[i] -= 1
 
-	p, _ := peer.IDFromBytes(b)
-
-	return p
+	return n
 }
 
-func Addr() peer.AddrInfo {
-	return peer.AddrInfo{
-		ID: ID(),
-	}
-}
-
-func ID() peer.ID {
+func ID() []byte {
 	pk, _, err := crypto.GenerateECDSAKeyPairWithCurve(elliptic.P256(), rand.Reader)
 	if err != nil {
 		panic(err)
@@ -160,5 +153,6 @@ func ID() peer.ID {
 		panic(err)
 	}
 
-	return id
+	b, _ := id.MarshalBinary()
+	return b
 }

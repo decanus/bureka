@@ -3,17 +3,18 @@ package state
 import (
 	"bytes"
 	"sort"
-
-	"github.com/libp2p/go-libp2p-core/peer"
 )
 
 var Length int = 10
 
+// Peer type represents a peer id.
+type Peer []byte
+
 // Set represents a Set of nodes
-type Set []*peer.AddrInfo
+type Set []Peer
 
 // Closest returns the closest peer to a specific ID.
-func (s Set) Closest(id peer.ID) *peer.AddrInfo {
+func (s Set) Closest(id Peer) Peer {
 	if len(s) == 0 {
 		return nil
 	}
@@ -28,10 +29,10 @@ func (s Set) Closest(id peer.ID) *peer.AddrInfo {
 }
 
 // Insert adds a peer to the Set.
-func (s Set) Insert(peer *peer.AddrInfo) Set {
-	i := s.search(peer.ID)
+func (s Set) Insert(peer Peer) Set {
+	i := s.search(peer)
 
-	if i < len(s) && s[i].ID == peer.ID || i >= Length {
+	if i < len(s) && bytes.Equal(s[i], peer) || i >= Length {
 		return s
 	}
 
@@ -43,7 +44,7 @@ func (s Set) Insert(peer *peer.AddrInfo) Set {
 }
 
 // Remove removes a peer with a given id.
-func (s Set) Remove(id peer.ID) (Set, bool) {
+func (s Set) Remove(id Peer) (Set, bool) {
 	i := s.IndexOf(id)
 	if i == -1 {
 		return s, false
@@ -55,9 +56,9 @@ func (s Set) Remove(id peer.ID) (Set, bool) {
 }
 
 // IndexOf returns the index of the given peer id.
-func (s Set) IndexOf(id peer.ID) int {
+func (s Set) IndexOf(id Peer) int {
 	for i, p := range s {
-		if p.ID == id {
+		if bytes.Equal(p, id) {
 			return i
 		}
 	}
@@ -65,11 +66,9 @@ func (s Set) IndexOf(id peer.ID) int {
 	return -1
 }
 
-func (s Set) search(id peer.ID) int {
-	byteid, _ := id.MarshalBinary()
+func (s Set) search(id Peer) int {
 
 	return sort.Search(len(s), func(i int) bool {
-		cmp, _ := (s)[i].ID.MarshalBinary()
-		return bytes.Compare(byteid, cmp) >= 0
+		return bytes.Compare(id, (s)[i]) >= 0
 	})
 }
