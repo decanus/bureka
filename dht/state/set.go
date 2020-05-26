@@ -67,7 +67,6 @@ func (s Set) IndexOf(id Peer) int {
 }
 
 func (s Set) search(id Peer) int {
-
 	return sort.Search(len(s), func(i int) bool {
 		return bytes.Compare(id, (s)[i]) >= 0
 	})
