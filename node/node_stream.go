@@ -40,7 +40,7 @@ func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
 			continue
 		}
 
-		resp := h(ctx, peer, *msg)
+		resp := h(ctx, peer, msg)
 		if resp == nil {
 			// @todo
 			continue
