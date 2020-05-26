@@ -128,11 +128,18 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 }
 
 // @todo probably want to return error if not found
-func (n *Node) route(to peer.ID) peer.AddrInfo {
+func (n *Node) route(id peer.ID) peer.AddrInfo {
+	to, _ := id.MarshalBinary()
+
 	if n.LeafSet.IsInRange(to) {
-		id := n.LeafSet.Closest(to)
-		if id != "" {
-			return n.Host.Peerstore().PeerInfo(id)
+		b := n.LeafSet.Closest(to)
+		if b != nil {
+			p, err := peer.IDFromBytes(b)
+			if err != nil {
+				// @todo
+			}
+
+			return n.Host.Peerstore().PeerInfo(p)
 		}
 	}
 
