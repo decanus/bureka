@@ -127,6 +127,18 @@ func (d *DHT) AddPeer(id state.Peer) {
 	d.LeafSet.Insert(id)
 }
 
+// RemovePeer removes a peer from the dht.
+func (d *DHT) RemovePeer(id state.Peer) {
+	d.Lock()
+	defer d.Unlock()
+
+	ns, _ := d.NeighborhoodSet.Remove(id)
+	d.NeighborhoodSet = ns
+
+	d.RoutingTable = d.RoutingTable.Remove(d.ID, id)
+	d.LeafSet.Remove(id)
+}
+
 // deliver sends the message to all connected applications.
 func (d *DHT) deliver(msg *pb.Message) {
 	d.RLock()

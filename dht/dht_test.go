@@ -1,6 +1,7 @@
 package dht_test
 
 import (
+	"bytes"
 	"context"
 	"testing"
 
@@ -11,6 +12,23 @@ import (
 	"github.com/decanus/bureka/dht/state"
 	"github.com/decanus/bureka/pb"
 )
+
+func TestNode_AddPeer_And_RemovePeer(t *testing.T) {
+	id := []byte{0, 1, 2, 3}
+	insert := []byte{0, 1, 3, 3}
+	n := dht.New(id, nil)
+
+	n.AddPeer(insert)
+
+	if !bytes.Equal(n.LeafSet.Closest(id), insert) {
+		t.Error("failed to insert in LeafSet")
+	}
+
+	if !bytes.Equal(n.NeighborhoodSet.Closest(id), insert) {
+		t.Error("failed to insert in NeighborhoodSet")
+	}
+
+}
 
 func TestNode_Send_ToSelf(t *testing.T) {
 	ctrl := gomock.NewController(t)
