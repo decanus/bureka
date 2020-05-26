@@ -1,2 +1,2 @@
-// Package dht contains an implementation of a pastry dht node.
+// Package dht contains an implementation of a pastry dht state machine.
 package dht
