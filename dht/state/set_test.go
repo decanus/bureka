@@ -1,6 +1,7 @@
 package state_test
 
 import (
+	"bytes"
 	"crypto/elliptic"
 	"crypto/rand"
 	"testing"
@@ -8,7 +9,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/peer"
 
-	"github.com/decanus/bureka/state"
+	"github.com/decanus/bureka/dht/state"
 )
 
 func TestSet_Insert(t *testing.T) {
@@ -55,7 +56,7 @@ func TestSet_Closest(t *testing.T) {
 	s = s.Insert(first)
 	s = s.Insert(second)
 
-	if first != s.Closest(search) {
+	if !bytes.Equal(first, s.Closest(search)) {
 		t.Error("unexpected closest value")
 	}
 }
@@ -108,42 +109,40 @@ func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
 	}
 }
 
-func UpperID(id peer.ID) peer.ID {
-	b, _ := id.MarshalBinary()
+func UpperID(id state.Peer) state.Peer {
+	n := make(state.Peer, len(id))
+	copy(n[:], id[:])
 
 	i := 2
 
-	for ; i <= len(b); i++ {
-		if b[i] < 255 {
+	for ; i <= len(id); i++ {
+		if id[i] < 255 {
 			break
 		}
 	}
 
-	b[i] += 1
-
-	p, _ := peer.IDFromBytes(b)
-
-	return p
+	n[i] += 1
+	return n
 }
 
-func LowerID(id peer.ID) peer.ID {
-	b, _ := id.MarshalBinary()
+func LowerID(id state.Peer) state.Peer {
+	n := make(state.Peer, len(id))
+	copy(n[:], id[:])
+
 	i := 2
 
-	for ; i <= len(b); i++ {
-		if b[i] > 0 {
+	for ; i <= len(id); i++ {
+		if id[i] > 0 {
 			break
 		}
 	}
 
-	b[i] -= 1
+	n[i] -= 1
 
-	p, _ := peer.IDFromBytes(b)
-
-	return p
+	return n
 }
 
-func ID() peer.ID {
+func ID() []byte {
 	pk, _, err := crypto.GenerateECDSAKeyPairWithCurve(elliptic.P256(), rand.Reader)
 	if err != nil {
 		panic(err)
@@ -154,5 +153,6 @@ func ID() peer.ID {
 		panic(err)
 	}
 
-	return id
+	b, _ := id.MarshalBinary()
+	return b
 }

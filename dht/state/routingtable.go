@@ -1,26 +1,20 @@
 package state
 
-import (
-	"github.com/libp2p/go-libp2p-core/peer"
-)
-
-// RoutingTable contains nodes organized by their distance to a peer.
 type RoutingTable []Set
 
 // Route returns the node closest to the target.
-func (r RoutingTable) Route(self, target peer.ID) peer.ID {
+func (r RoutingTable) Route(self, target Peer) Peer {
 	p := commonPrefix(self, target)
 
 	if p >= len(r) {
 		// @todo error handling
-		return ""
+		return nil
 	}
 
 	return r[p].Closest(target)
 }
 
-// Insert adds a node to the RoutingTable.
-func (r RoutingTable) Insert(self, id peer.ID) RoutingTable {
+func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 	nr := r
 	p := commonPrefix(self, id)
 	if p > len(r) {
@@ -44,17 +38,14 @@ func (r RoutingTable) grow(n int) RoutingTable {
 	return nr
 }
 
-func commonPrefix(self, target peer.ID) int {
-	s, _ := self.MarshalBinary()
-	t, _ := target.MarshalBinary()
-
-	for i, v := range s {
-		if v == t[i] {
+func commonPrefix(self, target Peer) int {
+	for i, v := range self {
+		if v == target[i] {
 			continue
 		}
 
 		return i
 	}
 
-	return len(s)
+	return len(self)
 }
