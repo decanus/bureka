@@ -26,6 +26,7 @@ type Node struct {
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
+// New returns a new Node.
 func New(ctx context.Context, d *dht.DHT, h host.Host, w *Writer) (*Node, error) {
 	return &Node{
 		ctx: ctx,
@@ -35,6 +36,7 @@ func New(ctx context.Context, d *dht.DHT, h host.Host, w *Writer) (*Node, error)
 	}, nil
 }
 
+// FindPeer finds the closest AddrInfo to the passed ID.
 func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
 	if err := id.Validate(); err != nil {
 		return peer.AddrInfo{}, err

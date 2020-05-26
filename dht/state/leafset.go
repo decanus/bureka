@@ -10,6 +10,7 @@ type LeafSet struct {
 	smaller, larger Set
 }
 
+// NewLeafSet returns an Empty LeafSet for the given Peer.
 func NewLeafSet(key Peer) LeafSet {
 	return LeafSet{
 		key:     key,
