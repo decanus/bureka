@@ -2,17 +2,15 @@ package state
 
 import (
 	"bytes"
-
-	"github.com/libp2p/go-libp2p-core/peer"
 )
 
 // LeafSet contains the sets of numerically closer and farther from the node.
 type LeafSet struct {
-	key             peer.ID
+	key             Peer
 	smaller, larger Set
 }
 
-func NewLeafSet(key peer.ID) LeafSet {
+func NewLeafSet(key Peer) LeafSet {
 	return LeafSet{
 		key:     key,
 		smaller: make(Set, 0),
@@ -21,10 +19,8 @@ func NewLeafSet(key peer.ID) LeafSet {
 }
 
 // Insert inserts a peer in the LeafSet.
-func (l *LeafSet) Insert(peer peer.ID) {
-	byteid, _ := peer.MarshalBinary()
-	k, _ := l.key.MarshalBinary()
-	if bytes.Compare(byteid, k) < 0 {
+func (l *LeafSet) Insert(peer Peer) {
+	if bytes.Compare(peer, l.key) < 0 {
 		l.smaller = l.smaller.Insert(peer)
 		return
 	}
@@ -33,10 +29,8 @@ func (l *LeafSet) Insert(peer peer.ID) {
 }
 
 // Remove removes a peer from the LeafSet.
-func (l *LeafSet) Remove(id peer.ID) bool {
-	byteid, _ := id.MarshalBinary()
-	k, _ := l.key.MarshalBinary()
-	if bytes.Compare(byteid, k) < 0 {
+func (l *LeafSet) Remove(id Peer) bool {
+	if bytes.Compare(id, l.key) < 0 {
 		smaller, ok := l.smaller.Remove(id)
 		l.smaller = smaller
 		return ok
@@ -48,10 +42,8 @@ func (l *LeafSet) Remove(id peer.ID) bool {
 }
 
 // Closest returns the closest PeerInfo.
-func (l LeafSet) Closest(id peer.ID) peer.ID {
-	byteid, _ := id.MarshalBinary()
-	k, _ := l.key.MarshalBinary()
-	if bytes.Compare(byteid, k) < 0 {
+func (l LeafSet) Closest(id Peer) Peer {
+	if bytes.Compare(id, l.key) < 0 {
 		return l.smaller.Closest(id)
 	}
 
@@ -59,18 +51,18 @@ func (l LeafSet) Closest(id peer.ID) peer.ID {
 }
 
 // Min returns the farthest key to the smaller side.
-func (l LeafSet) Min() peer.ID {
+func (l LeafSet) Min() Peer {
 	if len(l.smaller) == 0 {
-		return ""
+		return nil
 	}
 
 	return l.smaller[len(l.smaller)-1]
 }
 
 // Max returns the farthest key to the larger side.
-func (l LeafSet) Max() peer.ID {
+func (l LeafSet) Max() Peer {
 	if len(l.larger) == 0 {
-		return ""
+		return nil
 	}
 
 	return l.larger[0]
@@ -78,10 +70,17 @@ func (l LeafSet) Max() peer.ID {
 
 // IsInRange returns whether an id is between
 // the Min and Max IDs in the LeafSet.
-func (l LeafSet) IsInRange(id peer.ID) bool {
-	byteid, _ := id.MarshalBinary()
-	bytemin, _ := l.Min().MarshalBinary()
-	bytemax, _ := l.Max().MarshalBinary()
+func (l LeafSet) IsInRange(id Peer) bool {
+	min := l.Min()
+	max := l.Max()
 
-	return bytes.Compare(byteid, bytemin) >= 0 && bytes.Compare(byteid, bytemax) <= 0
+	if min != nil && bytes.Compare(id, min) == -1 {
+		return false
+	}
+
+	if max != nil && bytes.Compare(id, max) == 1 {
+		return false
+	}
+
+	return true
 }

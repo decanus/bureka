@@ -27,7 +27,7 @@ func setupDHT(ctx context.Context, t *testing.T) *dht.Node {
 func connectNoSync(t *testing.T, ctx context.Context, a, b *dht.Node) {
 	t.Helper()
 
-	idB := b.ID()
+	idB, _ := peer.IDFromBytes(b.ID())
 	addrB := b.Host.Peerstore().Addrs(idB)
 	if len(addrB) == 0 {
 		t.Fatal("peers setup incorrectly: no local address")
@@ -49,7 +49,7 @@ func TestNode_Send_To_Self(t *testing.T) {
 	mock := internal.NewMockApplication(ctrl)
 	n.AddApplication(dht.ApplicationID("app"), mock)
 
-	msg := pb.Message{Type: pb.Message_MESSAGE, Key: string(n.ID())}
+	msg := pb.Message{Type: pb.Message_MESSAGE, Key: n.ID()}
 
 	mock.EXPECT().Deliver(gomock.Eq(msg)).Times(1)
 

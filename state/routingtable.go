@@ -1,49 +1,42 @@
 package state
 
-import "github.com/libp2p/go-libp2p-core/peer"
-
-type RoutingTable [][]peer.ID
+type RoutingTable [][]Peer
 
 // Route returns the node closest to the target.
-func (r RoutingTable) Route(self, target peer.ID) peer.ID {
+func (r RoutingTable) Route(self, target Peer) Peer {
 	p := commonPrefix(self, target)
 
 	if p >= len(r) {
 		// @todo error handling
-		return ""
+		return nil
 	}
 
 	row := r[p]
 
-	b, _ := target.MarshalBinary()
-
 	// @todo this may be wrong
 	// see: https://github.com/secondbit/wendy/blob/e4601da9fbf96fd1f6e81a18e58db10b57bce3ff/nodeid.go#L214
-	if row[b[p]] != "" {
-		return row[b[p]]
+	if row[target[p]] != nil {
+		return row[target[p]]
 	}
 
 	// @todo find node closer numerically
 
-	return ""
+	return nil
 }
 
-func (r RoutingTable) Insert(self, id peer.ID) RoutingTable {
+func (r RoutingTable) Insert(self, id Peer) RoutingTable {
 	// @todo
 	return r
 }
 
-func commonPrefix(self, target peer.ID) int {
-	s, _ := self.MarshalBinary()
-	t, _ := target.MarshalBinary()
-
-	for i, v := range s {
-		if v == t[i] {
+func commonPrefix(self, target Peer) int {
+	for i, v := range self {
+		if v == target[i] {
 			continue
 		}
 
 		return i
 	}
 
-	return len(s)
+	return len(self)
 }

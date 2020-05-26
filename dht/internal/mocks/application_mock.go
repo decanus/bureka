@@ -6,8 +6,8 @@ package internal
 
 import (
 	pb "github.com/decanus/bureka/pb"
+	state "github.com/decanus/bureka/state"
 	gomock "github.com/golang/mock/gomock"
-	peer "github.com/libp2p/go-libp2p-core/peer"
 	reflect "reflect"
 )
 
@@ -47,7 +47,7 @@ func (mr *MockApplicationMockRecorder) Deliver(msg interface{}) *gomock.Call {
 }
 
 // Forward mocks base method
-func (m *MockApplication) Forward(msg pb.Message, target peer.ID) bool {
+func (m *MockApplication) Forward(msg pb.Message, target state.Peer) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Forward", msg, target)
 	ret0, _ := ret[0].(bool)
@@ -61,7 +61,7 @@ func (mr *MockApplicationMockRecorder) Forward(msg, target interface{}) *gomock.
 }
 
 // Heartbeat mocks base method
-func (m *MockApplication) Heartbeat(id peer.ID) {
+func (m *MockApplication) Heartbeat(id state.Peer) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Heartbeat", id)
 }

@@ -1,6 +1,7 @@
 package state_test
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/decanus/bureka/state"
@@ -13,7 +14,7 @@ func TestLeafSet_Insert(t *testing.T) {
 
 	ls.Insert(id)
 
-	if ls.Closest(id) != id {
+	if !bytes.Equal(ls.Closest(id), id) {
 		t.Error("failed to insert")
 	}
 }
@@ -25,13 +26,13 @@ func TestLeafSet_Remove(t *testing.T) {
 
 	ls.Insert(id)
 
-	if ls.Closest(id) != id {
+	if !bytes.Equal(ls.Closest(id), id) {
 		t.Error("failed to insert")
 	}
 
 	ls.Remove(id)
 
-	if ls.Closest(id) != "" {
+	if !bytes.Equal(ls.Closest(id), nil) {
 		t.Error("failed to remove")
 	}
 }
@@ -48,12 +49,12 @@ func TestLeafSet_Closest(t *testing.T) {
 	ls.Insert(lower)
 
 	su := UpperID(upper)
-	if ls.Closest(su) != upper {
+	if !bytes.Equal(ls.Closest(su), upper) {
 		t.Error("failed to find upper")
 	}
 
 	sl := LowerID(lower)
-	if ls.Closest(sl) != lower {
+	if !bytes.Equal(ls.Closest(sl), lower) {
 		t.Error("failed to find lower")
 	}
 }
@@ -68,7 +69,7 @@ func TestLeafSet_Max(t *testing.T) {
 	ls.Insert(u)
 	ls.Insert(max)
 
-	if ls.Max() != max {
+	if !bytes.Equal(ls.Max(), max) {
 		t.Error("unexpected max")
 	}
 }
@@ -83,7 +84,7 @@ func TestLeafSet_Min(t *testing.T) {
 	ls.Insert(u)
 	ls.Insert(min)
 
-	if ls.Min() != min {
+	if !bytes.Equal(ls.Min(), min) {
 		t.Error("unexpected min")
 	}
 }
@@ -93,6 +94,55 @@ func TestLeafSet_IsInRange(t *testing.T) {
 
 	ls := state.NewLeafSet(id)
 	ls.Insert(UpperID(id))
+	ls.Insert(LowerID(id))
+
+	if !ls.IsInRange(id) {
+		t.Error("id not in rage as expected")
+	}
+}
+
+func TestLeafSet_IsInRange_OutOfRange_Upper(t *testing.T) {
+	id := ID()
+
+	upper := UpperID(id)
+
+	ls := state.NewLeafSet(id)
+	ls.Insert(upper)
+	ls.Insert(LowerID(id))
+
+	if ls.IsInRange(UpperID(upper)) {
+		t.Error("id in rage, not as expected")
+	}
+}
+func TestLeafSet_IsInRange_OutOfRange_Lower(t *testing.T) {
+	id := ID()
+
+	lower := LowerID(id)
+
+	ls := state.NewLeafSet(id)
+	ls.Insert(lower)
+	ls.Insert(UpperID(id))
+
+	if ls.IsInRange(LowerID(lower)) {
+		t.Error("id in rage, not as expected")
+	}
+}
+
+func TestLeafSet_IsInRange_OnlyMax(t *testing.T) {
+	id := ID()
+
+	ls := state.NewLeafSet(id)
+	ls.Insert(UpperID(id))
+
+	if !ls.IsInRange(id) {
+		t.Error("id not in rage as expected")
+	}
+}
+
+func TestLeafSet_IsInRange_OnlyMin(t *testing.T) {
+	id := ID()
+
+	ls := state.NewLeafSet(id)
 	ls.Insert(LowerID(id))
 
 	if !ls.IsInRange(id) {
