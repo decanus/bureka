@@ -98,6 +98,9 @@ func (d *DHT) Send(ctx context.Context, msg pb.Message) error {
 
 // Find returns the closest known peer to a given target or the target itself.
 func (d *DHT) Find(target state.Peer) state.Peer {
+	d.RLock()
+	defer d.RUnlock()
+
 	if d.LeafSet.IsInRange(target) {
 		id := d.LeafSet.Closest(target)
 		if id != nil {
@@ -112,6 +115,16 @@ func (d *DHT) Find(target state.Peer) state.Peer {
 	}
 
 	return nil
+}
+
+// AddPeer adds a newly found peer to the dht.
+func (d *DHT) AddPeer(id state.Peer) {
+	d.Lock()
+	defer d.Unlock()
+
+	d.NeighborhoodSet.Insert(id)
+	d.RoutingTable.Insert(d.ID, id)
+	d.LeafSet.Insert(id)
 }
 
 // deliver sends the message to all connected applications.
