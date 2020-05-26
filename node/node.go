@@ -20,7 +20,7 @@ type Node struct {
 
 	dht     dht.DHT
 	host    host.Host
-	writers map[peer.ID]chan<- pb.Message
+	writer Writer
 }
 
 // Guarantee that we implement interfaces.
