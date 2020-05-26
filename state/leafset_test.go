@@ -100,3 +100,25 @@ func TestLeafSet_IsInRange(t *testing.T) {
 		t.Error("id not in rage as expected")
 	}
 }
+
+func TestLeafSet_IsInRange_OnlyMax(t *testing.T) {
+	id := ID()
+
+	ls := state.NewLeafSet(id)
+	ls.Insert(UpperID(id))
+
+	if !ls.IsInRange(id) {
+		t.Error("id not in rage as expected")
+	}
+}
+
+func TestLeafSet_IsInRange_OnlyMin(t *testing.T) {
+	id := ID()
+
+	ls := state.NewLeafSet(id)
+	ls.Insert(LowerID(id))
+
+	if !ls.IsInRange(id) {
+		t.Error("id not in rage as expected")
+	}
+}
