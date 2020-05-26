@@ -17,7 +17,7 @@ message Message {
     }
 
     Type type = 1;
-    string sender = 2;
+    bytes sender = 2;
     bytes key = 3;
     uint64 hops = 4;
 
