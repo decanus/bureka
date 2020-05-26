@@ -122,6 +122,7 @@ func (d *DHT) AddPeer(id state.Peer) {
 	d.Lock()
 	defer d.Unlock()
 
+	// @todo probably need to think about max length for neighborhoodset
 	d.NeighborhoodSet = d.NeighborhoodSet.Insert(id)
 	d.RoutingTable = d.RoutingTable.Insert(d.ID, id)
 	d.LeafSet.Insert(id)
