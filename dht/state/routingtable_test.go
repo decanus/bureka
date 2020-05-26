@@ -19,3 +19,28 @@ func TestRoutingTable_Insert(t *testing.T) {
 		t.Error("inserted in unexpected row")
 	}
 }
+
+func TestRoutingTable_Route(t *testing.T) {
+	id := []byte{1, 2, 3, 4}
+	insert := []byte{1, 2, 2, 3}
+	find := []byte{1, 2, 2, 4}
+
+	r := make(state.RoutingTable, 0)
+
+	r = r.Insert(id, insert)
+
+	if !bytes.Equal(r.Route(id, find), insert) {
+		t.Error("unexpected route result")
+	}
+}
+
+func TestRoutingTable_Route_ReturnsNoneWhenTooFar(t *testing.T) {
+	id := []byte{1, 2, 3, 4}
+	find := []byte{1, 2, 2, 4}
+
+	r := make(state.RoutingTable, 0)
+
+	if r.Route(id, find) != nil {
+		t.Error("unexpected route result")
+	}
+}
