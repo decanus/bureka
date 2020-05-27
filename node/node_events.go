@@ -32,6 +32,42 @@ func (n *Node) subscribe() (event.Subscription, error) {
 
 func (n *Node) poll(s event.Subscription) {
 	defer s.Close()
+
+	for {
+		select {
+		case e, more := <-n.sub.Out():
+			if !more {
+				return
+			}
+
+			switch evt := e.(type) {
+			case event.EvtLocalAddressesUpdated:
+				// when our address changes, we should proactively tell our closest peers about it so
+				// we become discoverable quickly. The Identify protocol will push a signed peer record
+				// with our new address to all peers we are connected to. However, we might not necessarily be connected
+				// to our closet peers & so in the true spirit of Zen, searching for ourself in the network really is the best way
+				// to to forge connections with those matter.
+
+				// @todo
+			case event.EvtPeerProtocolsUpdated:
+				n.handlePeerChangeEvent(evt.Peer)
+			case event.EvtPeerIdentificationCompleted:
+				n.handlePeerChangeEvent(evt.Peer)
+			case event.EvtLocalReachabilityChanged:
+				//if dht.auto == ModeAuto || dht.auto == ModeAutoServer {
+				//	handleLocalReachabilityChangedEvent(dht, evt)
+				//} else {
+				//	// something has gone really wrong if we get an event we did not subscribe to
+				//	logger.Errorf("received LocalReachabilityChanged event that was not subscribed to")
+				//}
+			default:
+				// something has gone really wrong if we get an event for another type
+				logger.Errorf("got wrong type from subscription: %T", e)
+			}
+		case <-n.ctx.Done():
+			return
+		}
+	}
 }
 
 func (n *Node) handlePeerChangeEvent(p peer.ID) {
