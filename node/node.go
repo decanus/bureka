@@ -47,8 +47,7 @@ func New(ctx context.Context, d *dht.DHT, h host.Host, w *Writer) (*Node, error)
 
 	// adds the already known peers
 	for _, p := range n.host.Network().Peers() {
-		id, _ := p.MarshalBinary()
-		n.dht.AddPeer(id)
+		n.dht.AddPeer([]byte(p))
 	}
 
 	go n.poll(n.sub)
