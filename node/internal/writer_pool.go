@@ -1,4 +1,4 @@
-package node
+package internal
 
 import (
 	"bufio"

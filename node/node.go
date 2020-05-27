@@ -10,6 +10,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/routing"
 
 	"github.com/decanus/bureka/dht"
+	"github.com/decanus/bureka/node/internal"
 	"github.com/decanus/bureka/pb"
 )
 
@@ -21,7 +22,7 @@ type Node struct {
 
 	dht    *dht.DHT
 	host   host.Host
-	writer *Writer
+	writer *internal.Writer
 
 	sub event.Subscription
 }
@@ -30,7 +31,7 @@ type Node struct {
 var _ routing.PeerRouting = (*Node)(nil)
 
 // New returns a new Node.
-func New(ctx context.Context, d *dht.DHT, h host.Host, w *Writer) (*Node, error) {
+func New(ctx context.Context, d *dht.DHT, h host.Host, w *internal.Writer) (*Node, error) {
 	n := &Node{
 		ctx: ctx,
 		dht: d,
