@@ -53,13 +53,6 @@ func (n *Node) poll(s event.Subscription) {
 				n.handlePeerChangeEvent(evt.Peer)
 			case event.EvtPeerIdentificationCompleted:
 				n.handlePeerChangeEvent(evt.Peer)
-			case event.EvtLocalReachabilityChanged:
-				//if dht.auto == ModeAuto || dht.auto == ModeAutoServer {
-				//	handleLocalReachabilityChangedEvent(dht, evt)
-				//} else {
-				//	// something has gone really wrong if we get an event we did not subscribe to
-				//	logger.Errorf("received LocalReachabilityChanged event that was not subscribed to")
-				//}
 			default:
 				// something has gone really wrong if we get an event for another type
 				logger.Errorf("got wrong type from subscription: %T", e)
