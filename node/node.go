@@ -29,6 +29,7 @@ type Node struct {
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
+// New returns a new Node.
 func New(ctx context.Context, d *dht.DHT, h host.Host, w *Writer) (*Node, error) {
 	n := &Node{
 		ctx: ctx,
@@ -55,6 +56,7 @@ func New(ctx context.Context, d *dht.DHT, h host.Host, w *Writer) (*Node, error)
 	return n, nil
 }
 
+// FindPeer finds the closest AddrInfo to the passed ID.
 func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) {
 	if err := id.Validate(); err != nil {
 		return peer.AddrInfo{}, err
@@ -62,7 +64,7 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 
 	logger.Debug("finding peer", "peer", id)
 
-	b, _ := id.MarshalBinary()
+	b := []byte(id)
 	p := n.dht.Find(b)
 	if p == nil {
 		return peer.AddrInfo{}, nil // @todo error
