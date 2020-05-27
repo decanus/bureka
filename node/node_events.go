@@ -71,6 +71,5 @@ func (n *Node) poll(s event.Subscription) {
 }
 
 func (n *Node) handlePeerChangeEvent(p peer.ID) {
-	id, _ := p.MarshalBinary()
-	n.dht.AddPeer(id)
+	n.dht.AddPeer([]byte(p))
 }
