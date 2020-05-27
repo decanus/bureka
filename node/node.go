@@ -44,7 +44,7 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 
 	logger.Debug("finding peer", "peer", id)
 
-	b, _ := id.MarshalBinary()
+	b := []byte(id)
 	p := n.dht.Find(b)
 	if p == nil {
 		return peer.AddrInfo{}, nil // @todo error
