@@ -4,6 +4,8 @@ import (
 	"github.com/libp2p/go-eventbus"
 	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/peer"
+
+	"github.com/decanus/bureka/dht/state"
 )
 
 func (n *Node) subscribe() (event.Subscription, error) {
@@ -47,8 +49,7 @@ func (n *Node) poll(s event.Subscription) {
 				// with our new address to all peers we are connected to. However, we might not necessarily be connected
 				// to our closet peers & so in the true spirit of Zen, searching for ourself in the network really is the best way
 				// to to forge connections with those matter.
-
-				// @todo
+				n.handleUpdate()
 			case event.EvtPeerProtocolsUpdated:
 				n.handlePeerChangeEvent(evt.Peer)
 			case event.EvtPeerIdentificationCompleted:
@@ -65,4 +66,10 @@ func (n *Node) poll(s event.Subscription) {
 
 func (n *Node) handlePeerChangeEvent(p peer.ID) {
 	n.dht.AddPeer([]byte(p))
+}
+
+func (n *Node) handleUpdate() {
+	n.dht.MapNeighbors(func(peer state.Peer) {
+		// @todo send update to all peers so they know our address has changed
+	})
 }
