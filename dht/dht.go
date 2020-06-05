@@ -79,7 +79,7 @@ func (d *DHT) Send(ctx context.Context, msg *pb.Message) error {
 
 	target := d.Find(key)
 	if target == nil {
-		// no target to be found, delivering to self
+		d.deliver(msg)
 		return nil
 	}
 
