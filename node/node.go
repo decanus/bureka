@@ -33,9 +33,9 @@ var _ routing.PeerRouting = (*Node)(nil)
 // New returns a new Node.
 func New(ctx context.Context, d *dht.DHT, h host.Host, w *internal.Writer) (*Node, error) {
 	n := &Node{
-		ctx: ctx,
-		dht: d,
-		host: h,
+		ctx:    ctx,
+		dht:    d,
+		host:   h,
 		writer: w,
 	}
 

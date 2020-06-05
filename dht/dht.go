@@ -155,7 +155,18 @@ func (d *DHT) MapNeighbors(process func(peer state.Peer)) {
 	defer d.RUnlock()
 
 	for _, p := range d.NeighborhoodSet {
-		go process(p)
+		process(p)
+	}
+}
+
+func (d *DHT) MapRoutingTable(process func(peer state.Peer)) {
+	d.RLock()
+	defer d.RUnlock()
+
+	for _, r := range d.RoutingTable {
+		for _, p := range r {
+			process(p)
+		}
 	}
 }
 

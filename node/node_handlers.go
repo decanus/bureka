@@ -5,6 +5,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 
+	"github.com/decanus/bureka/dht/state"
 	"github.com/decanus/bureka/pb"
 )
 
@@ -61,12 +62,18 @@ func (n *Node) onHeartbeat(_ context.Context, message *pb.Message) *pb.Message {
 	return nil
 }
 
+// @todo make sure this is what we want
 func (n *Node) onRepairRequest(ctx context.Context, message *pb.Message) *pb.Message {
-	return nil
+	resp := n.stateResponseMessage()
+	resp.Key = message.Sender
+	return resp
 }
 
+// @todo make sure this is what we want
 func (n *Node) onStateRequest(ctx context.Context, message *pb.Message) *pb.Message {
-	return nil
+	resp := n.stateResponseMessage()
+	resp.Key = message.Sender
+	return resp
 }
 
 func (n *Node) onStateResponse(ctx context.Context, message *pb.Message) *pb.Message {
@@ -93,4 +100,34 @@ func (n *Node) onStateResponse(ctx context.Context, message *pb.Message) *pb.Mes
 	}
 
 	return nil
+}
+
+// stateResponseMessage returns a message with the current state tables.
+func (n *Node) stateResponseMessage() *pb.Message {
+	routing := make([][]byte, 0)
+	n.dht.MapRoutingTable(func(peer state.Peer) {
+		routing = append(routing, peer)
+	})
+
+	neighbor := make([][]byte, 0)
+	n.dht.MapRoutingTable(func(peer state.Peer) {
+		neighbor = append(neighbor, peer)
+	})
+
+	s := &pb.State{
+		Neighborhood: neighbor,
+		Leafset:      nil,
+		RoutingTable: routing,
+	}
+
+	d, err := proto.Marshal(s)
+	if err != nil {
+		return nil
+	}
+
+	return &pb.Message{
+		Type:   pb.Message_STATE_RESPONSE,
+		Sender: n.dht.ID,
+		Data:   d,
+	}
 }
