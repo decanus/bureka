@@ -19,7 +19,8 @@ message Message {
     Type type = 1;
     bytes sender = 2;
     bytes key = 3;
-    uint64 hops = 4;
+    bytes data = 4;
+    uint64 hops = 5;
 
     // @todo signature and all that
 }

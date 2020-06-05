@@ -79,7 +79,7 @@ func (d *DHT) Send(ctx context.Context, msg *pb.Message) error {
 
 	target := d.Find(key)
 	if target == nil {
-		// no target to be found, delivering to self
+		d.deliver(msg)
 		return nil
 	}
 
@@ -146,6 +146,16 @@ func (d *DHT) Heartbeat(id state.Peer) {
 
 	for _, app := range d.applications {
 		app.Heartbeat(id)
+	}
+}
+
+// MapNeighbors iterates over the NeighborhoodSet and calls the process for every peer.
+func (d *DHT) MapNeighbors(process func(peer state.Peer)) {
+	d.RLock()
+	defer d.RUnlock()
+
+	for _, p := range d.NeighborhoodSet {
+		go process(p)
 	}
 }
 

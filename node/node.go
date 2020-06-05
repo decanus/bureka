@@ -4,11 +4,13 @@ import (
 	"context"
 
 	logging "github.com/ipfs/go-log"
+	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/routing"
 
 	"github.com/decanus/bureka/dht"
+	"github.com/decanus/bureka/node/internal"
 	"github.com/decanus/bureka/pb"
 )
 
@@ -20,20 +22,38 @@ type Node struct {
 
 	dht    *dht.DHT
 	host   host.Host
-	writer *Writer
+	writer *internal.Writer
+
+	sub event.Subscription
 }
 
 // Guarantee that we implement interfaces.
 var _ routing.PeerRouting = (*Node)(nil)
 
 // New returns a new Node.
-func New(ctx context.Context, d *dht.DHT, h host.Host, w *Writer) (*Node, error) {
-	return &Node{
+func New(ctx context.Context, d *dht.DHT, h host.Host, w *internal.Writer) (*Node, error) {
+	n := &Node{
 		ctx: ctx,
 		dht: d,
 		host: h,
 		writer: w,
-	}, nil
+	}
+
+	s, err := n.subscribe()
+	if err != nil {
+		return nil, err
+	}
+
+	n.sub = s
+
+	// adds the already known peers
+	for _, p := range n.host.Network().Peers() {
+		n.dht.AddPeer([]byte(p))
+	}
+
+	go n.poll(n.sub)
+
+	return n, nil
 }
 
 // FindPeer finds the closest AddrInfo to the passed ID.
