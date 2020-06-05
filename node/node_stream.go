@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/gogo/protobuf/proto"
@@ -40,7 +41,13 @@ func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
 			continue
 		}
 
-		resp := h(ctx, msg)
+		resp, err := h(ctx, msg)
+		if err != nil {
+			// @todo
+			fmt.Println(err)
+			continue
+		}
+
 		if resp == nil {
 			// @todo
 			continue

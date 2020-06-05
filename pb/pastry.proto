@@ -19,7 +19,7 @@ message Message {
         HEARTBEAT = 4;
         REPAIR_REQUEST = 5;
         STATE_REQUEST = 6;
-        STATE_RESPONSE = 7;
+        STATE_DATA = 7;
     }
 
     Type type = 1;
