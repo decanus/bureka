@@ -74,7 +74,7 @@ func (n *Node) handleUpdate() {
 		// @todo according to pastry this `Key` should be different than the peer we are sending to
 		err := n.dht.Send(
 			n.ctx,
-			&pb.Message{Key: peer, Type: pb.Message_NODE_JOIN, Sender: n.host.ID().String()},
+			&pb.Message{Key: peer, Type: pb.Message_NODE_JOIN, Sender: []byte(n.host.ID())},
 		)
 
 		if err != nil {
