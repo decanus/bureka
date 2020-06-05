@@ -3,6 +3,8 @@ package node
 import (
 	"context"
 
+	"github.com/gogo/protobuf/proto"
+
 	"github.com/decanus/bureka/pb"
 )
 
@@ -68,5 +70,27 @@ func (n *Node) onStateRequest(ctx context.Context, message *pb.Message) *pb.Mess
 }
 
 func (n *Node) onStateResponse(ctx context.Context, message *pb.Message) *pb.Message {
+	req := &pb.State{}
+	err := proto.Unmarshal(message.Data, req)
+	if err != nil {
+		// @todo
+		return nil
+	}
+
+	n.dht.Lock()
+	defer n.dht.Unlock()
+
+	for _, peer := range req.RoutingTable {
+		n.dht.RoutingTable = n.dht.RoutingTable.Insert(n.dht.ID, peer)
+	}
+
+	for _, peer := range req.Neighborhood {
+		n.dht.NeighborhoodSet = n.dht.NeighborhoodSet.Insert(peer)
+	}
+
+	for _, peer := range req.Leafset {
+		n.dht.LeafSet.Insert(peer)
+	}
+
 	return nil
 }

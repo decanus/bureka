@@ -3,6 +3,12 @@
 syntax = "proto3";
 package pb;
 
+message State {
+    repeated bytes Neighborhood = 1;
+    repeated bytes Leafset = 2;
+    repeated bytes RoutingTable = 3;
+}
+
 message Message {
 
     enum Type {
