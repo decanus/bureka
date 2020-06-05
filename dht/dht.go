@@ -139,6 +139,16 @@ func (d *DHT) RemovePeer(id state.Peer) {
 	d.LeafSet.Remove(id)
 }
 
+// MapNeighbors iterates over the NeighborhoodSet and calls the process for every peer.
+func (d *DHT) MapNeighbors(process func(peer state.Peer)) {
+	d.RLock()
+	defer d.RUnlock()
+
+	for _, p := range d.NeighborhoodSet {
+		go process(p)
+	}
+}
+
 // deliver sends the message to all connected applications.
 func (d *DHT) deliver(msg *pb.Message) {
 	d.RLock()
