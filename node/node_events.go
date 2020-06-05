@@ -4,8 +4,10 @@ import (
 	"github.com/libp2p/go-eventbus"
 	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/secondbit/wendy"
 
 	"github.com/decanus/bureka/dht/state"
+	"github.com/decanus/bureka/pb"
 )
 
 func (n *Node) subscribe() (event.Subscription, error) {
@@ -70,6 +72,14 @@ func (n *Node) handlePeerChangeEvent(p peer.ID) {
 
 func (n *Node) handleUpdate() {
 	n.dht.MapNeighbors(func(peer state.Peer) {
-		// @todo send update to all peers so they know our address has changed
+		// @todo according to pastry this `Key` should be different than the peer we are sending to
+		err := n.dht.Send(
+			n.ctx,
+			&pb.Message{Key: peer, Type: pb.Message_NODE_JOIN, Sender: n.host.ID().String()},
+		)
+
+		if err != nil {
+			// @todo
+		}
 	})
 }

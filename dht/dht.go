@@ -145,7 +145,7 @@ func (d *DHT) MapNeighbors(process func(peer state.Peer)) {
 	defer d.RUnlock()
 
 	for _, p := range d.NeighborhoodSet {
-		process(p)
+		go process(p)
 	}
 }
 
