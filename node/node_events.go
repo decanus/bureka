@@ -4,7 +4,6 @@ import (
 	"github.com/libp2p/go-eventbus"
 	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/secondbit/wendy"
 
 	"github.com/decanus/bureka/dht/state"
 	"github.com/decanus/bureka/pb"
