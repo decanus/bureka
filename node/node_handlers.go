@@ -98,20 +98,7 @@ func (n *Node) onStateData(ctx context.Context, message *pb.Message) (*pb.Messag
 		return nil, err
 	}
 
-	n.dht.Lock()
-	defer n.dht.Unlock()
-
-	for _, peer := range req.RoutingTable {
-		n.dht.RoutingTable = n.dht.RoutingTable.Insert(n.dht.ID, peer)
-	}
-
-	for _, peer := range req.Neighborhood {
-		n.dht.NeighborhoodSet = n.dht.NeighborhoodSet.Insert(peer)
-	}
-
-	for _, peer := range req.Leafset {
-		n.dht.LeafSet.Insert(peer)
-	}
+	n.dht.ImportPeers(req.RoutingTable, req.Neighborhood, req.Leafset)
 
 	return nil, nil
 }

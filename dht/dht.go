@@ -159,6 +159,7 @@ func (d *DHT) MapNeighbors(process func(peer state.Peer)) {
 	}
 }
 
+// MapRoutingTable iterates over the RoutingTable and calls the process for every peer.
 func (d *DHT) MapRoutingTable(process func(peer state.Peer)) {
 	d.RLock()
 	defer d.RUnlock()
@@ -167,6 +168,23 @@ func (d *DHT) MapRoutingTable(process func(peer state.Peer)) {
 		for _, p := range r {
 			process(p)
 		}
+	}
+}
+
+func (d *DHT) ImportPeers(routingTable [][]byte, neighborhood [][]byte, leafset [][]byte) {
+	d.Lock()
+	defer d.Unlock()
+
+	for _, peer := range routingTable {
+		d.RoutingTable = d.RoutingTable.Insert(d.ID, peer)
+	}
+
+	for _, peer := range neighborhood {
+		d.NeighborhoodSet = d.NeighborhoodSet.Insert(peer)
+	}
+
+	for _, peer := range leafset {
+		d.LeafSet.Insert(peer)
 	}
 }
 
