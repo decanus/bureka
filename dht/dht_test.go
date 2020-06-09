@@ -40,4 +40,3 @@ func TestNode_AddPeer_And_RemovePeer(t *testing.T) {
 		t.Error("failed to remove peer from LeafSet")
 	}
 }
-
