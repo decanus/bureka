@@ -1,18 +1,11 @@
 package dht
 
 import (
-	"context"
 	"sync"
 
 	"github.com/decanus/bureka/dht/state"
 	"github.com/decanus/bureka/pb"
 )
-
-// Transport is responsible for sending messages.
-// This represents a call back function that can be implemented on network IO.
-type Transport interface {
-	Send(ctx context.Context, target state.Peer, msg *pb.Message) error
-}
 
 // ApplicationID represents a unique identifier for the application.
 type ApplicationID string
