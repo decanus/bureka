@@ -116,9 +116,14 @@ func (n *Node) stateResponseMessage() (*pb.Message, error) {
 		neighbor = append(neighbor, peer)
 	})
 
+	leafset := make([][]byte, 0)
+	n.dht.MapLeafSet(func(peer state.Peer) {
+		leafset = append(leafset, peer)
+	})
+
 	s := &pb.State{
 		Neighborhood: neighbor,
-		Leafset:      nil,
+		Leafset:      leafset,
 		RoutingTable: routing,
 	}
 
