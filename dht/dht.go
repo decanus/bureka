@@ -1,7 +1,6 @@
 package dht
 
 import (
-	"bytes"
 	"context"
 	"sync"
 
@@ -39,19 +38,16 @@ type DHT struct {
 	RoutingTable    state.RoutingTable
 
 	applications map[ApplicationID]Application
-
-	transport Transport
 }
 
 // New returns a new DHT.
-func New(id state.Peer, transport Transport) *DHT {
+func New(id state.Peer) *DHT {
 	return &DHT{
 		ID:              id,
 		LeafSet:         state.NewLeafSet(id),
 		NeighborhoodSet: make(state.Set, 0),
 		RoutingTable:    make(state.RoutingTable, 0),
 		applications:    make(map[ApplicationID]Application),
-		transport:       transport,
 	}
 }
 
@@ -69,34 +65,6 @@ func (d *DHT) RemoveApplication(aid ApplicationID) {
 	defer d.Unlock()
 
 	delete(d.applications, aid)
-}
-
-// Send a message to the target peer or closest available peer.
-func (d *DHT) Send(ctx context.Context, msg *pb.Message) error {
-	key := msg.Key
-
-	if bytes.Equal(key, d.ID) {
-		d.deliver(msg) // @todo we may need to do this for more than just message types, like when the routing table is updated.
-		return nil
-	}
-
-	target := d.Find(key)
-	if target == nil {
-		d.deliver(msg)
-		return nil
-	}
-
-	forward := d.forward(msg, target)
-	if !forward {
-		return nil
-	}
-
-	err := d.transport.Send(ctx, target, msg)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // Find returns the closest known peer to a given target or the target itself.
@@ -197,31 +165,4 @@ func (d *DHT) ImportPeers(routingTable [][]byte, neighborhood [][]byte, leafset 
 	for _, peer := range leafset {
 		d.LeafSet.Insert(peer)
 	}
-}
-
-// deliver sends the message to all connected applications.
-func (d *DHT) deliver(msg *pb.Message) {
-	d.RLock()
-	defer d.RUnlock()
-
-	for _, app := range d.applications {
-		app.Deliver(msg)
-	}
-}
-
-// forward asks all applications whether a message should be forwarded to a peer or not.
-func (d *DHT) forward(msg *pb.Message, target state.Peer) bool {
-	d.RLock()
-	defer d.RUnlock()
-
-	// @todo need to run over this logic
-	forward := true
-	for _, app := range d.applications {
-		f := app.Forward(msg, target)
-		if forward {
-			forward = f
-		}
-	}
-
-	return forward
 }

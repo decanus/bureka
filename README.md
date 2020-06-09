@@ -8,9 +8,8 @@ Usage with libp2p:
 
 ```go
 func main() {
-    writer := node.NewWriter()
-    d := dht.New(id, writer)
+    d := dht.New(id)
     
-    n := node.New(ctx.Background(), d, host.Host, writer)
+    n := node.New(ctx.Background(), d, host.Host)
 }
 ```
