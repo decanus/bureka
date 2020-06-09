@@ -37,7 +37,7 @@ func (n *Node) handler(t pb.Message_Type) handlerFunc {
 func (n *Node) onMessage(ctx context.Context, message *pb.Message) (*pb.Message, error) {
 	err := n.Send(ctx, message)
 	if err != nil {
-		// @todo
+		return nil, err
 	}
 
 	return nil, nil
@@ -56,6 +56,7 @@ func (n *Node) onNodeJoin(ctx context.Context, message *pb.Message) (*pb.Message
 }
 
 func (n *Node) onNodeAnnounce(ctx context.Context, message *pb.Message) (*pb.Message, error) {
+	n.dht.AddPeer(message.Sender)
 	return nil, nil
 }
 
