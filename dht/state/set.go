@@ -38,6 +38,7 @@ func (s Set) Insert(peer Peer) Set {
 
 	ns := s
 
+	// @todo, what we could do here is init a Set at a certain length and never append.
 	if len(s) < Length {
 		ns = append(s, nil)
 	}
