@@ -19,7 +19,7 @@ func (s Set) Closest(id Peer) Peer {
 		return nil
 	}
 
-	i := s.search(id)
+	i := s.insertAt(id)
 
 	if i >= len(s) {
 		i = len(s) - 1
@@ -30,13 +30,19 @@ func (s Set) Closest(id Peer) Peer {
 
 // Insert adds a peer to the Set.
 func (s Set) Insert(peer Peer) Set {
-	i := s.search(peer)
+	i := s.insertAt(peer)
 
-	if i < len(s) && bytes.Equal(s[i], peer) || i >= Length {
+	if i < len(s) && bytes.Equal(s[i], peer) {
 		return s
 	}
 
-	ns := append(s, nil)
+	ns := s
+
+	// @todo, what we could do here is init a Set at a certain length and never append.
+	if len(s) < Length {
+		ns = append(s, nil)
+	}
+
 	copy(ns[i+1:], ns[i:])
 	ns[i] = peer
 
@@ -66,7 +72,7 @@ func (s Set) IndexOf(id Peer) int {
 	return -1
 }
 
-func (s Set) search(id Peer) int {
+func (s Set) insertAt(id Peer) int {
 	return sort.Search(len(s), func(i int) bool {
 		return bytes.Compare(id, (s)[i]) >= 0
 	})
