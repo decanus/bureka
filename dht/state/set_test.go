@@ -109,6 +109,28 @@ func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
 	}
 }
 
+func TestSet_Insert_Max_Length(t *testing.T) {
+	prev := ID()
+
+	s := make(state.Set, 0)
+
+	for i := 0; i < state.Length; i++ {
+		s = s.Insert(prev)
+		prev = UpperID(prev)
+	}
+
+	next := UpperID(prev)
+	s = s.Insert(next)
+
+	if len(s) > state.Length {
+		t.Fatal("list too long")
+	}
+
+	if !bytes.Equal(s[0], next) {
+		t.Fatal("unexpected value")
+	}
+}
+
 func UpperID(id state.Peer) state.Peer {
 	n := make(state.Peer, len(id))
 	copy(n[:], id[:])
