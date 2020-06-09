@@ -71,14 +71,16 @@ func (n *Node) handlePeerChangeEvent(p peer.ID) {
 
 func (n *Node) handleUpdate() {
 	n.dht.MapNeighbors(func(peer state.Peer) {
-		// @todo according to pastry this `Key` should be different than the peer we are sending to
-		err := n.dht.Send(
-			n.ctx,
-			&pb.Message{Key: peer, Type: pb.Message_NODE_JOIN, Sender: n.host.ID().String()},
-		)
+		go func() {
+			// @todo according to pastry this `Key` should be different than the peer we are sending to
+			err := n.dht.Send(
+				n.ctx,
+				&pb.Message{Key: peer, Type: pb.Message_NODE_JOIN, Sender: []byte(n.host.ID())},
+			)
 
-		if err != nil {
-			// @todo
-		}
+			if err != nil {
+				// @todo
+			}
+		}()
 	})
 }

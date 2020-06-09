@@ -18,6 +18,9 @@ type Transport interface {
 // ApplicationID represents a unique identifier for the application.
 type ApplicationID string
 
+// MapFunc is used to map over the various DHT peer lists.
+type MapFunc func(state.Peer)
+
 // Application represents a pastry application
 type Application interface {
 	Deliver(msg *pb.Message)
@@ -122,6 +125,7 @@ func (d *DHT) AddPeer(id state.Peer) {
 	d.Lock()
 	defer d.Unlock()
 
+	// @todo probably need to think about max length for neighborhoodset
 	d.NeighborhoodSet = d.NeighborhoodSet.Insert(id)
 	d.RoutingTable = d.RoutingTable.Insert(d.ID, id)
 	d.LeafSet.Insert(id)
@@ -139,13 +143,59 @@ func (d *DHT) RemovePeer(id state.Peer) {
 	d.LeafSet.Remove(id)
 }
 
+func (d *DHT) Heartbeat(id state.Peer) {
+	d.RLock()
+	defer d.RUnlock()
+
+	for _, app := range d.applications {
+		app.Heartbeat(id)
+	}
+}
+
 // MapNeighbors iterates over the NeighborhoodSet and calls the process for every peer.
-func (d *DHT) MapNeighbors(process func(peer state.Peer)) {
+func (d *DHT) MapNeighbors(process MapFunc) {
 	d.RLock()
 	defer d.RUnlock()
 
 	for _, p := range d.NeighborhoodSet {
-		go process(p)
+		process(p)
+	}
+}
+
+// MapRoutingTable iterates over the RoutingTable and calls the process for every peer.
+func (d *DHT) MapRoutingTable(process MapFunc) {
+	d.RLock()
+	defer d.RUnlock()
+
+	for _, r := range d.RoutingTable {
+		for _, p := range r {
+			process(p)
+		}
+	}
+}
+
+// MapLeafSet iterates over the LeafSet and calls the process for every peer.
+func (d *DHT) MapLeafSet(process MapFunc) {
+	d.RLock()
+	defer d.RUnlock()
+
+	d.LeafSet.Map(process)
+}
+
+func (d *DHT) ImportPeers(routingTable [][]byte, neighborhood [][]byte, leafset [][]byte) {
+	d.Lock()
+	defer d.Unlock()
+
+	for _, peer := range routingTable {
+		d.RoutingTable = d.RoutingTable.Insert(d.ID, peer)
+	}
+
+	for _, peer := range neighborhood {
+		d.NeighborhoodSet = d.NeighborhoodSet.Insert(peer)
+	}
+
+	for _, peer := range leafset {
+		d.LeafSet.Insert(peer)
 	}
 }
 

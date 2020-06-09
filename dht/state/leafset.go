@@ -69,6 +69,16 @@ func (l LeafSet) Max() Peer {
 	return l.larger[0]
 }
 
+func (l LeafSet) Map(process func(peer Peer)) {
+	for _, p := range l.smaller {
+		process(p)
+	}
+
+	for _, p := range l.larger {
+		process(p)
+	}
+}
+
 // IsInRange returns whether an id is between
 // the Min and Max IDs in the LeafSet.
 func (l LeafSet) IsInRange(id Peer) bool {

@@ -3,6 +3,12 @@
 syntax = "proto3";
 package pb;
 
+message State {
+    repeated bytes Neighborhood = 1;
+    repeated bytes Leafset = 2;
+    repeated bytes RoutingTable = 3;
+}
+
 message Message {
 
     enum Type {
@@ -13,11 +19,11 @@ message Message {
         HEARTBEAT = 4;
         REPAIR_REQUEST = 5;
         STATE_REQUEST = 6;
-        STATE_RESPONSE = 7;
+        STATE_DATA = 7;
     }
 
     Type type = 1;
-    string sender = 2;
+    bytes sender = 2;
     bytes key = 3;
     bytes data = 4;
     uint64 hops = 5;

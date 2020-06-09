@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"io"
+	"log"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/libp2p/go-libp2p-core/network"
@@ -36,19 +37,23 @@ func (n *Node) handleIncomingMessages(ctx context.Context, s network.Stream) {
 
 		h := n.handler(msg.Type)
 		if h == nil {
-			// @todo
+			log.Printf("no handler found for message type \"%s\"", msg.Type)
 			continue
 		}
 
-		resp := h(ctx, peer, msg)
+		resp, err := h(ctx, msg)
+		if err != nil {
+			log.Print(err)
+			continue
+		}
+
 		if resp == nil {
-			// @todo
 			continue
 		}
 
 		err = n.writer.Send(ctx, peer, resp)
 		if err != nil {
-			// @todo
+			log.Print(err)
 		}
 	}
 }
