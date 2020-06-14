@@ -113,6 +113,7 @@ func TestDHT_Send_DoesNothingOnFalseForward(t *testing.T) {
 	application.EXPECT().Forward(gomock.Eq(msg), gomock.Eq(target)).Times(1).Return(false)
 
 	ctx := context.Background()
+	transport.EXPECT().Send(gomock.Eq(ctx), gomock.Eq(target), gomock.Eq(msg)).Times(0)
 
 	err := d.Send(ctx, msg)
 	if err != nil {
