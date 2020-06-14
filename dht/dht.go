@@ -71,6 +71,8 @@ func (d *DHT) RemoveApplication(aid ApplicationID) {
 	delete(d.applications, aid)
 }
 
+// @todo we can move this into the node, and have the DHT only route.
+// we then make the node know the applications, keeping the DHT very lightweight, no outside dependencies.
 // Send a message to the target peer or closest available peer.
 func (d *DHT) Send(ctx context.Context, msg *pb.Message) error {
 	key := msg.Key

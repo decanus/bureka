@@ -79,7 +79,7 @@ func (n *Node) handleUpdate() {
 			)
 
 			if err != nil {
-				// @todo
+				logger.Error(err)
 			}
 		}()
 	})

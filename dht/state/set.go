@@ -10,6 +10,7 @@ var Length int = 10
 // Peer type represents a peer id.
 type Peer []byte
 
+// @todo think about changing set struct to have a max length field
 // Set represents a Set of nodes
 type Set []Peer
 
