@@ -13,6 +13,7 @@ require (
 	github.com/libp2p/go-libp2p-peer v0.2.0
 	github.com/libp2p/go-libp2p-swarm v0.2.4
 	github.com/libp2p/go-msgio v0.0.4
+	github.com/multiformats/go-multiaddr v0.2.2
 	github.com/pkg/errors v0.9.1
 	github.com/secondbit/wendy v0.0.0-20130516081449-e4601da9fbf9
 	github.com/stretchr/objx v0.1.1 // indirect
