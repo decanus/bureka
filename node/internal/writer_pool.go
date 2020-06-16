@@ -54,7 +54,7 @@ func (w *Writer) RemoveStream(id state.Peer) {
 }
 
 func (w *Writer) SetProtocol(proto protocol.ID) {
-
+	w.proto = proto
 }
 
 func (w *Writer) Send(ctx context.Context, target state.Peer, msg *pb.Message) error {
