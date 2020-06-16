@@ -67,6 +67,21 @@ func (n *Node) poll(s event.Subscription) {
 
 func (n *Node) handlePeerChangeEvent(p peer.ID) {
 	n.dht.AddPeer([]byte(p))
+
+	// @todo
+	n.dht.MapNeighbors(func(peer state.Peer) {
+		go func() {
+			// @todo according to pastry this `Key` should be different than the peer we are sending to
+			err := n.dht.Send(
+				n.ctx,
+				&pb.Message{Key: peer, Type: pb.Message_NODE_ANNOUNCE, Sender: []byte(p)},
+			)
+
+			if err != nil {
+				logger.Error(err)
+			}
+		}()
+	})
 }
 
 func (n *Node) handleUpdate() {
