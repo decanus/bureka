@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"errors"
 
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/event"
@@ -73,7 +74,7 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 	b := []byte(id)
 	p := n.dht.Find(b)
 	if p == nil {
-		return peer.AddrInfo{}, nil // @todo error
+		return peer.AddrInfo{}, errors.New("failed to find peer")
 	}
 
 	id, err := peer.IDFromBytes(p)
@@ -86,4 +87,10 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 
 func (n *Node) Send(ctx context.Context, msg *pb.Message) error {
 	return n.dht.Send(ctx, msg)
+}
+
+// Close closes the node and stops the DHT.
+func (n *Node) Close() {
+	n.dht.Close()
+	n.host.Close()
 }

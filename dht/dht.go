@@ -3,6 +3,7 @@ package dht
 import (
 	"bytes"
 	"context"
+	"log"
 	"sync"
 
 	"github.com/decanus/bureka/dht/state"
@@ -152,6 +153,20 @@ func (d *DHT) Heartbeat(id state.Peer) {
 	for _, app := range d.applications {
 		app.Heartbeat(id)
 	}
+}
+
+// Close sends a message to all neighbors that a peer is exiting the DHT.
+func (d *DHT) Close()  {
+	d.MapNeighbors(func(peer state.Peer) {
+		err := d.Send(
+			context.Background(),
+			&pb.Message{Key: peer, Type: pb.Message_NODE_EXIT, Sender: d.ID},
+		)
+
+		if err != nil {
+			log.Println(err)
+		}
+	})
 }
 
 // MapNeighbors iterates over the NeighborhoodSet and calls the process for every peer.
