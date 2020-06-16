@@ -48,6 +48,7 @@ func (w *Writer) RemoveStream(id state.Peer) {
 }
 
 func (w *Writer) Send(ctx context.Context, target state.Peer, msg *pb.Message) error {
+	// @todo this should probably be more like MessageSender with NewStream.
 	out, ok := w.streams[string(target)]
 	if !ok {
 		return fmt.Errorf("peer %s not found", string(target))
