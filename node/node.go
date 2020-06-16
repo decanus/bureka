@@ -7,6 +7,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-core/routing"
 
 	"github.com/decanus/bureka/dht"
@@ -15,6 +16,8 @@ import (
 )
 
 var logger = logging.Logger("dht")
+
+var bureka = protocol.ID("/bureka/1.0.0")
 
 // Node is a simple implementation that bridges libp2p IO to the pastry DHT state machine.
 type Node struct {
@@ -50,6 +53,9 @@ func New(ctx context.Context, d *dht.DHT, h host.Host, w *internal.Writer) (*Nod
 	for _, p := range n.host.Network().Peers() {
 		n.dht.AddPeer([]byte(p))
 	}
+
+	n.writer.SetProtocol(bureka)
+	n.host.SetStreamHandler(bureka, n.streamHandler)
 
 	go n.poll(n.sub)
 
