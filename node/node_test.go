@@ -94,7 +94,6 @@ func connect(t *testing.T, ctx context.Context, a, b *Node) {
 	wait(t, ctx, b, a)
 }
 
-// @todo something about this does not work
 func TestFindPeer(t *testing.T) {
 	if testing.Short() {
 		t.SkipNow()
