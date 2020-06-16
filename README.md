@@ -1,6 +1,6 @@
 # Bureka
 
-**:warning: WORK IN PROGRESS! :warning:**
+**:warning: WORK IN PROGRESS! :warning: - CURRENTLY ABANDONED**
 
 An implementation of the [Pastry DHT](http://rowstron.azurewebsites.net/PAST/pastry.pdf) in go. This package includes a libp2p compatible node making it easy to use in a libp2p network.
 
