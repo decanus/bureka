@@ -8,8 +8,8 @@ import (
 	ggio "github.com/gogo/protobuf/io"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
-	peer "github.com/libp2p/go-libp2p-peer"
 
 	"github.com/decanus/bureka/dht/state"
 	"github.com/decanus/bureka/pb"
@@ -75,7 +75,8 @@ func (w *Writer) Send(ctx context.Context, target state.Peer, msg *pb.Message) e
 }
 
 func (w *Writer) stream(ctx context.Context, target state.Peer) (network.Stream, error) {
-	out := w.streams[string(target)]
+	pid := peer.ID(target)
+	out := w.streams[pid.String()]
 	if out != nil {
 		return out, nil
 	}
@@ -85,6 +86,6 @@ func (w *Writer) stream(ctx context.Context, target state.Peer) (network.Stream,
 		return nil, err
 	}
 
-	w.streams[string(target)] = out
+	w.streams[pid.String()] = out
 	return out, nil
 }
