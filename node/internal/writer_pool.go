@@ -58,13 +58,7 @@ func (w *Writer) SetProtocol(proto protocol.ID) {
 }
 
 func (w *Writer) Send(ctx context.Context, target state.Peer, msg *pb.Message) error {
-	// @todo this should probably be more like MessageSender with NewStream.
-	//out, ok := w.streams[string(target)]
-	//if !ok {
-	//	return fmt.Errorf("peer %s not found", string(target))
-	//}
-
-	out, err := w.host.NewStream(ctx, peer.ID(target), w.proto)
+	out, err := w.stream(ctx, target)
 	if err != nil {
 		return err
 	}
@@ -78,4 +72,19 @@ func (w *Writer) Send(ctx context.Context, target state.Peer, msg *pb.Message) e
 	bw.Reset(nil)
 	w.pool.Put(bw)
 	return err
+}
+
+func (w *Writer) stream(ctx context.Context, target state.Peer) (network.Stream, error) {
+	out := w.streams[string(target)]
+	if out != nil {
+		return out, nil
+	}
+
+	out, err := w.host.NewStream(ctx, peer.ID(target), w.proto)
+	if err != nil {
+		return nil, err
+	}
+
+	w.streams[string(target)] = out
+	return out, nil
 }
