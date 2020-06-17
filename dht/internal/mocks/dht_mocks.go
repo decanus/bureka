@@ -5,49 +5,11 @@
 package internal
 
 import (
-	context "context"
 	state "github.com/decanus/bureka/dht/state"
 	pb "github.com/decanus/bureka/pb"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
-
-// MockTransport is a mock of Transport interface
-type MockTransport struct {
-	ctrl     *gomock.Controller
-	recorder *MockTransportMockRecorder
-}
-
-// MockTransportMockRecorder is the mock recorder for MockTransport
-type MockTransportMockRecorder struct {
-	mock *MockTransport
-}
-
-// NewMockTransport creates a new mock instance
-func NewMockTransport(ctrl *gomock.Controller) *MockTransport {
-	mock := &MockTransport{ctrl: ctrl}
-	mock.recorder = &MockTransportMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockTransport) EXPECT() *MockTransportMockRecorder {
-	return m.recorder
-}
-
-// Send mocks base method
-func (m *MockTransport) Send(ctx context.Context, target state.Peer, msg *pb.Message) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Send", ctx, target, msg)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Send indicates an expected call of Send
-func (mr *MockTransportMockRecorder) Send(ctx, target, msg interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Send", reflect.TypeOf((*MockTransport)(nil).Send), ctx, target, msg)
-}
 
 // MockApplication is a mock of Application interface
 type MockApplication struct {

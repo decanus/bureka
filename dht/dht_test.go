@@ -16,7 +16,7 @@ import (
 func TestDHT_AddPeer_And_RemovePeer(t *testing.T) {
 	id := []byte{5, 5, 5, 5}
 	insert := []byte{0, 1, 3, 3}
-	d := dht.New(id, nil)
+	d := dht.New(id)
 
 	d.AddPeer(insert)
 
@@ -52,7 +52,7 @@ func TestDHT_Send_ToSelf(t *testing.T) {
 	defer ctrl.Finish()
 
 	transport := internal.NewMockTransport(ctrl)
-	d := dht.New([]byte("bob"), transport)
+	d := dht.New([]byte("bob"))
 
 	application := internal.NewMockApplication(ctrl)
 	d.AddApplication("app", application)
@@ -72,7 +72,7 @@ func TestDHT_Send_WhenPeerInLeafSet(t *testing.T) {
 	defer ctrl.Finish()
 
 	transport := internal.NewMockTransport(ctrl)
-	d := dht.New([]byte("bob"), transport)
+	d := dht.New([]byte("bob"))
 
 	application := internal.NewMockApplication(ctrl)
 	d.AddApplication("app", application)
@@ -99,7 +99,7 @@ func TestDHT_Send_DoesNothingOnFalseForward(t *testing.T) {
 	defer ctrl.Finish()
 
 	transport := internal.NewMockTransport(ctrl)
-	d := dht.New([]byte("bob"), transport)
+	d := dht.New([]byte("bob"))
 
 	application := internal.NewMockApplication(ctrl)
 	d.AddApplication("app", application)
