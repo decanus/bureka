@@ -33,6 +33,8 @@ type DHT struct {
 	RoutingTable    state.RoutingTable
 
 	applications map[ApplicationID]Application
+
+	feed *Feed
 }
 
 // New returns a new DHT.
@@ -84,8 +86,13 @@ func (d *DHT) Send(ctx context.Context, msg *pb.Message) error {
 		return nil
 	}
 
-	// @todo push to outbox channel
+	d.feed.Send(Packet{Target: target, Message: msg})
 	return nil
+}
+
+// Feed is the subscription feed for messages.
+func (d *DHT) Feed() *Feed {
+	return d.feed
 }
 
 // Find returns the closest known peer to a given target or the target itself.

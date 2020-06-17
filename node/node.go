@@ -59,6 +59,8 @@ func New(ctx context.Context, d *dht.DHT, h host.Host, w *internal.Writer) (*Nod
 
 	go n.poll(n.sub)
 
+	// @todo subscribe to feed
+
 	return n, nil
 }
 
