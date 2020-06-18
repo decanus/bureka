@@ -23,8 +23,6 @@ func (n *Node) handler(t pb.Message_Type) handlerFunc {
 		return n.onNodeExit
 	case pb.Message_HEARTBEAT:
 		return n.onHeartbeat
-	case pb.Message_REPAIR_REQUEST:
-		return n.onRepairRequest
 	case pb.Message_STATE_REQUEST:
 		return n.onStateRequest
 	case pb.Message_STATE_DATA:
@@ -68,17 +66,6 @@ func (n *Node) onNodeExit(ctx context.Context, message *pb.Message) (*pb.Message
 func (n *Node) onHeartbeat(_ context.Context, message *pb.Message) (*pb.Message, error) {
 	n.dht.Heartbeat(message.Sender)
 	return nil, nil
-}
-
-// @todo make sure this is what we want
-func (n *Node) onRepairRequest(ctx context.Context, message *pb.Message) (*pb.Message, error) {
-	resp, err := n.stateResponseMessage()
-	if err != nil {
-		return nil, err
-	}
-
-	resp.Key = message.Sender
-	return resp, err
 }
 
 // @todo make sure this is what we want
