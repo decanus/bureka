@@ -107,7 +107,7 @@ func (n *Node) handleOutgoingMessages() {
 				n.dht.RemovePeer(msg.Target)
 			}
 		case <-n.ctx.Done():
-
+			return
 		}
 	}
 }
