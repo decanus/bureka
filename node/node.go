@@ -59,23 +59,7 @@ func New(ctx context.Context, d *dht.DHT, h host.Host, w *internal.Writer) (*Nod
 
 	go n.poll(n.sub)
 
-	// @todo clean this up marker
-
-	c := make(chan dht.Packet)
-	n.dht.Feed().Subscribe(c)
-
-	go func() {
-		for {
-			msg := <-c
-			err := n.writer.Send(ctx, msg.Target, msg.Message)
-			if err != nil {
-				n.dht.RemovePeer(msg.Target)
-			}
-		}
-
-	}()
-
-	// @todo clean this up marker
+	go n.handleOutgoingMessages()
 
 	return n, nil
 }
@@ -104,4 +88,26 @@ func (n *Node) FindPeer(ctx context.Context, id peer.ID) (peer.AddrInfo, error) 
 
 func (n *Node) Send(ctx context.Context, msg *pb.Message) error {
 	return n.dht.Send(ctx, msg)
+}
+
+func (n *Node) handleOutgoingMessages() {
+	c := make(chan dht.Packet)
+	n.dht.Feed().Subscribe(c)
+
+	for {
+
+		select {
+		case msg, more := <-c:
+			if !more {
+				return
+			}
+
+			err := n.writer.Send(n.ctx, msg.Target, msg.Message)
+			if err != nil {
+				n.dht.RemovePeer(msg.Target)
+			}
+		case <-n.ctx.Done():
+
+		}
+	}
 }
