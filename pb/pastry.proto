@@ -17,9 +17,8 @@ message Message {
         NODE_ANNOUNCE = 2;
         NODE_EXIT = 3;
         HEARTBEAT = 4;
-        REPAIR_REQUEST = 5;
-        STATE_REQUEST = 6;
-        STATE_DATA = 7;
+        STATE_REQUEST = 5;
+        STATE_DATA = 6;
     }
 
     Type type = 1;
