@@ -9,12 +9,6 @@ import (
 	"github.com/decanus/bureka/pb"
 )
 
-// Transport is responsible for sending messages.
-// This represents a call back function that can be implemented on network IO.
-type Transport interface {
-	Send(ctx context.Context, target state.Peer, msg *pb.Message) error
-}
-
 // ApplicationID represents a unique identifier for the application.
 type ApplicationID string
 
@@ -40,18 +34,18 @@ type DHT struct {
 
 	applications map[ApplicationID]Application
 
-	transport Transport
+	feed *Feed
 }
 
 // New returns a new DHT.
-func New(id state.Peer, transport Transport) *DHT {
+func New(id state.Peer) *DHT {
 	return &DHT{
 		ID:              id,
 		LeafSet:         state.NewLeafSet(id),
 		NeighborhoodSet: make(state.Set, 0),
 		RoutingTable:    make(state.RoutingTable, 0),
 		applications:    make(map[ApplicationID]Application),
-		transport:       transport,
+		feed:            NewFeed(),
 	}
 }
 
@@ -93,13 +87,13 @@ func (d *DHT) Send(ctx context.Context, msg *pb.Message) error {
 		return nil
 	}
 
-	err := d.transport.Send(ctx, target, msg)
-	if err != nil {
-		d.RemovePeer(target)
-		return err
-	}
-
+	d.feed.Send(Packet{Target: target, Message: msg})
 	return nil
+}
+
+// Feed is the subscription feed for messages.
+func (d *DHT) Feed() *Feed {
+	return d.feed
 }
 
 // Find returns the closest known peer to a given target or the target itself.
