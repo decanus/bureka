@@ -95,6 +95,7 @@ func (d *DHT) Send(ctx context.Context, msg *pb.Message) error {
 
 	err := d.transport.Send(ctx, target, msg)
 	if err != nil {
+		d.RemovePeer(target)
 		return err
 	}
 
