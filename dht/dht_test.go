@@ -85,21 +85,15 @@ func TestDHT_Send_WhenPeerInLeafSet(t *testing.T) {
 
 	ctx := context.Background()
 
-	c := make(chan dht.Packet)
-	res := make(chan dht.Packet)
-
+	c := make(chan dht.Packet, 5)
 	d.Feed().Subscribe(c)
-
-	go func() {
-		res <- <-c
-	}()
 
 	err := d.Send(ctx, msg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	val := <-res
+	val := <-c
 	if msg != val.Message {
 		t.Fail()
 	}
