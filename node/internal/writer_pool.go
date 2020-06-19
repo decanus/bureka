@@ -25,7 +25,7 @@ type Writer struct {
 
 	streams map[string]network.Stream
 
-	host host.Host
+	host  host.Host
 	proto protocol.ID
 }
 
@@ -41,7 +41,7 @@ func NewWriter(h host.Host) *Writer {
 			},
 		},
 		streams: make(map[string]network.Stream),
-		host: h,
+		host:    h,
 	}
 }
 

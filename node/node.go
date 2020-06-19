@@ -59,7 +59,23 @@ func New(ctx context.Context, d *dht.DHT, h host.Host, w *internal.Writer) (*Nod
 
 	go n.poll(n.sub)
 
-	// @todo subscribe to feed
+	// @todo clean this up marker
+
+	c := make(chan dht.Packet)
+	n.dht.Feed().Subscribe(c)
+
+	go func() {
+		for {
+			msg := <-c
+			err := n.writer.Send(ctx, msg.Target, msg.Message)
+			if err != nil {
+				n.dht.RemovePeer(msg.Target)
+			}
+		}
+
+	}()
+
+	// @todo clean this up marker
 
 	return n, nil
 }

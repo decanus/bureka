@@ -10,10 +10,16 @@ type Packet struct {
 	Message *pb.Message
 }
 
-type Subscription chan <-Packet
+type Subscription chan<- Packet
 
 type Feed struct {
 	subscribers []Subscription
+}
+
+func NewFeed() *Feed {
+	return &Feed{
+		subscribers: make([]Subscription, 0),
+	}
 }
 
 // Subscribe adds a channel to the feed.

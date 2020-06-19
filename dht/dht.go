@@ -45,6 +45,7 @@ func New(id state.Peer) *DHT {
 		NeighborhoodSet: make(state.Set, 0),
 		RoutingTable:    make(state.RoutingTable, 0),
 		applications:    make(map[ApplicationID]Application),
+		feed:            NewFeed(),
 	}
 }
 
