@@ -13,7 +13,7 @@ import (
 )
 
 func TestSet_Insert(t *testing.T) {
-	s := make(state.Set, 0)
+	s := state.NewSet(10)
 
 	id := ID()
 
@@ -25,7 +25,7 @@ func TestSet_Insert(t *testing.T) {
 }
 
 func TestSet_Remove(t *testing.T) {
-	s := make(state.Set, 0)
+	s := state.NewSet(10)
 
 	id := ID()
 
@@ -45,7 +45,7 @@ func TestSet_Remove(t *testing.T) {
 }
 
 func TestSet_Closest(t *testing.T) {
-	s := make(state.Set, 0)
+	s := state.NewSet(10)
 
 	first := ID()
 
@@ -62,7 +62,7 @@ func TestSet_Closest(t *testing.T) {
 }
 
 func TestSet_Insert_IsProperlySorted(t *testing.T) {
-	s := make(state.Set, 0)
+	s := state.NewSet(10)
 
 	first := ID()
 	second := UpperID(first)
@@ -86,7 +86,7 @@ func TestSet_Insert_IsProperlySorted(t *testing.T) {
 }
 
 func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
-	s := make(state.Set, 0)
+	s := state.NewSet(10)
 
 	first := ID()
 	second := LowerID(first)
@@ -112,9 +112,10 @@ func TestSet_Insert_IsProperlySorted_Reverse(t *testing.T) {
 func TestSet_Insert_Max_Length(t *testing.T) {
 	prev := ID()
 
-	s := make(state.Set, 0)
+	length := 10
+	s := state.NewSet(length)
 
-	for i := 0; i < state.Length; i++ {
+	for i := 0; i < length; i++ {
 		s = s.Insert(prev)
 		prev = UpperID(prev)
 	}
@@ -122,11 +123,11 @@ func TestSet_Insert_Max_Length(t *testing.T) {
 	next := UpperID(prev)
 	s = s.Insert(next)
 
-	if len(s) > state.Length {
+	if s.Length() > length {
 		t.Fatal("list too long")
 	}
 
-	if !bytes.Equal(s[0], next) {
+	if !bytes.Equal(s.Get(0), next) {
 		t.Fatal("unexpected value")
 	}
 }

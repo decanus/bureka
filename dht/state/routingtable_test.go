@@ -15,7 +15,7 @@ func TestRoutingTable_Insert(t *testing.T) {
 
 	r = r.Insert(id, insert)
 
-	if !bytes.Equal(r[2][0], insert) {
+	if !bytes.Equal(r[2].Get(0), insert) {
 		t.Error("inserted in unexpected row")
 	}
 }
@@ -27,12 +27,12 @@ func TestRoutingTable_Remove(t *testing.T) {
 	r := make(state.RoutingTable, 0)
 
 	r = r.Insert(id, insert)
-	if !bytes.Equal(r[2][0], insert) {
+	if !bytes.Equal(r[2].Get(0), insert) {
 		t.Error("not inserted")
 	}
 
 	r = r.Remove(id, insert)
-	if len(r[2]) != 0 {
+	if r[2].Length() != 0 {
 		t.Error("not removed")
 	}
 }
