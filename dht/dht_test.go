@@ -16,7 +16,7 @@ import (
 func TestDHT_AddPeer_And_RemovePeer(t *testing.T) {
 	id := []byte{5, 5, 5, 5}
 	insert := []byte{0, 1, 3, 3}
-	d := dht.New(id, nil)
+	d := dht.New(id)
 
 	d.AddPeer(insert)
 
@@ -51,8 +51,7 @@ func TestDHT_Send_ToSelf(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	transport := internal.NewMockTransport(ctrl)
-	d := dht.New([]byte("bob"), transport)
+	d := dht.New([]byte("bob"))
 
 	application := internal.NewMockApplication(ctrl)
 	d.AddApplication("app", application)
@@ -71,8 +70,7 @@ func TestDHT_Send_WhenPeerInLeafSet(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	transport := internal.NewMockTransport(ctrl)
-	d := dht.New([]byte("bob"), transport)
+	d := dht.New([]byte("bob"))
 
 	application := internal.NewMockApplication(ctrl)
 	d.AddApplication("app", application)
@@ -86,11 +84,18 @@ func TestDHT_Send_WhenPeerInLeafSet(t *testing.T) {
 	application.EXPECT().Forward(gomock.Eq(msg), gomock.Eq(target)).Times(1).Return(true)
 
 	ctx := context.Background()
-	transport.EXPECT().Send(gomock.Eq(ctx), gomock.Eq(target), gomock.Eq(msg)).Times(1)
+
+	c := make(chan dht.Packet, 5)
+	d.Feed().Subscribe(c)
 
 	err := d.Send(ctx, msg)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	val := <-c
+	if msg != val.Message {
+		t.Fail()
 	}
 }
 
@@ -98,8 +103,7 @@ func TestDHT_Send_DoesNothingOnFalseForward(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	transport := internal.NewMockTransport(ctrl)
-	d := dht.New([]byte("bob"), transport)
+	d := dht.New([]byte("bob"))
 
 	application := internal.NewMockApplication(ctrl)
 	d.AddApplication("app", application)
@@ -113,7 +117,6 @@ func TestDHT_Send_DoesNothingOnFalseForward(t *testing.T) {
 	application.EXPECT().Forward(gomock.Eq(msg), gomock.Eq(target)).Times(1).Return(false)
 
 	ctx := context.Background()
-	transport.EXPECT().Send(gomock.Eq(ctx), gomock.Eq(target), gomock.Eq(msg)).Times(0)
 
 	err := d.Send(ctx, msg)
 	if err != nil {

@@ -19,7 +19,7 @@ func setupNode(ctx context.Context, t *testing.T) *Node {
 	h := bhost.New(swarmt.GenSwarm(t, ctx, swarmt.OptDisableReuseport))
 
 	w := internal.NewWriter(h)
-	d := dht.New(state.Peer(h.ID()), w)
+	d := dht.New(state.Peer(h.ID()))
 
 	n, err := New(ctx, d, h, w)
 	if err != nil {
