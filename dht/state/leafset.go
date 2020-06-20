@@ -14,8 +14,8 @@ type LeafSet struct {
 func NewLeafSet(key Peer) LeafSet {
 	return LeafSet{
 		key:     key,
-		smaller: make(Set, 0),
-		larger:  make(Set, 0),
+		smaller: NewSet(10),
+		larger:  NewSet(10),
 	}
 }
 
@@ -53,30 +53,25 @@ func (l LeafSet) Closest(id Peer) Peer {
 
 // Min returns the farthest key to the smaller side.
 func (l LeafSet) Min() Peer {
-	if len(l.smaller) == 0 {
+	if l.smaller.Length() == 0 {
 		return nil
 	}
 
-	return l.smaller[len(l.smaller)-1]
+	return l.smaller.Get(l.smaller.Length() -1)
 }
 
 // Max returns the farthest key to the larger side.
 func (l LeafSet) Max() Peer {
-	if len(l.larger) == 0 {
+	if l.larger.Length() == 0 {
 		return nil
 	}
 
-	return l.larger[0]
+	return l.larger.Get(0)
 }
 
 func (l LeafSet) Map(process func(peer Peer)) {
-	for _, p := range l.smaller {
-		process(p)
-	}
-
-	for _, p := range l.larger {
-		process(p)
-	}
+	l.smaller.Map(process)
+	l.larger.Map(process)
 }
 
 // IsInRange returns whether an id is between

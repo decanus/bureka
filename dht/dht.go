@@ -42,7 +42,7 @@ func New(id state.Peer) *DHT {
 	return &DHT{
 		ID:              id,
 		LeafSet:         state.NewLeafSet(id),
-		NeighborhoodSet: make(state.Set, 0),
+		NeighborhoodSet: state.NewSet(15),
 		RoutingTable:    make(state.RoutingTable, 0),
 		applications:    make(map[ApplicationID]Application),
 		feed:            NewFeed(),
@@ -154,9 +154,7 @@ func (d *DHT) MapNeighbors(process MapFunc) {
 	d.RLock()
 	defer d.RUnlock()
 
-	for _, p := range d.NeighborhoodSet {
-		process(p)
-	}
+	d.NeighborhoodSet.Map(process)
 }
 
 // MapRoutingTable iterates over the RoutingTable and calls the process for every peer.
@@ -165,9 +163,7 @@ func (d *DHT) MapRoutingTable(process MapFunc) {
 	defer d.RUnlock()
 
 	for _, r := range d.RoutingTable {
-		for _, p := range r {
-			process(p)
-		}
+		r.Map(process)
 	}
 }
 
