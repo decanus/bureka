@@ -43,7 +43,7 @@ func (r RoutingTable) Remove(self, id Peer) RoutingTable {
 func (r RoutingTable) grow(n int) RoutingTable {
 	nr := r
 	for len(nr) < n {
-		nr = append(nr, make(Set, 0))
+		nr = append(nr, NewSet(10))
 	}
 
 	return nr
