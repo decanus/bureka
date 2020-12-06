@@ -3,6 +3,7 @@ package dht
 import (
 	"bytes"
 	"context"
+	"log"
 	"sync"
 
 	"github.com/decanus/bureka/dht/state"
@@ -129,7 +130,7 @@ func (d *DHT) AddPeer(id state.Peer) {
 }
 
 // RemovePeer removes a peer from the dht.
-func (d *DHT) RemovePeer(id state.Peer) {
+func (d *DHT) RemovePeer(id state.Peer) bool {
 	d.Lock()
 	defer d.Unlock()
 
@@ -137,7 +138,7 @@ func (d *DHT) RemovePeer(id state.Peer) {
 	d.NeighborhoodSet = ns
 
 	d.RoutingTable = d.RoutingTable.Remove(d.ID, id)
-	d.LeafSet.Remove(id)
+	return d.LeafSet.Remove(id)
 }
 
 func (d *DHT) Heartbeat(id state.Peer) {
@@ -147,6 +148,20 @@ func (d *DHT) Heartbeat(id state.Peer) {
 	for _, app := range d.applications {
 		app.Heartbeat(id)
 	}
+}
+
+// Close sends a message to all neighbors that a peer is exiting the DHT.
+func (d *DHT) Close()  {
+	d.MapNeighbors(func(peer state.Peer) {
+		err := d.Send(
+			context.Background(),
+			&pb.Message{Key: peer, Type: pb.Message_NODE_EXIT, Sender: d.ID},
+		)
+
+		if err != nil {
+			log.Println(err)
+		}
+	})
 }
 
 // MapNeighbors iterates over the NeighborhoodSet and calls the process for every peer.

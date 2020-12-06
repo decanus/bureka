@@ -105,7 +105,7 @@ func TestFindPeer(t *testing.T) {
 	dhts := setupNodes(t, ctx, 4)
 	defer func() {
 		for i := 0; i < 4; i++ {
-			dhts[i].host.Close()
+			dhts[i].Close()
 		}
 	}()
 

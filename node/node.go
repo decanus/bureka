@@ -91,6 +91,12 @@ func (n *Node) Send(ctx context.Context, msg *pb.Message) error {
 	return n.dht.Send(ctx, msg)
 }
 
+// Close closes the node and stops the DHT.
+func (n *Node) Close() {
+	n.dht.Close()
+	n.host.Close()
+}
+
 func (n *Node) handleOutgoingMessages() {
 	c := make(chan dht.Packet)
 	n.dht.Feed().Subscribe(c)
